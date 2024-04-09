@@ -1,33 +1,31 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+/* @apply warning remove: https://github.com/tailwindlabs/tailwindcss/discussions/5258#discussioncomment-8559596 */
+
+/* Notes: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container */
+
+.project-container {
+  @apply flex flex-col w-full h-screen mx-auto;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.navbar {
+  @apply w-full h-12 text-2xl content-center text-red-400 border border-red-500;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.main-rows {
+  @apply flex flex-row flex-grow w-full mx-auto max-w-[1512px];
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.side-channels-container {
+  @apply w-[72px] border border-sky-500;
+}
+
+.direct-messages-container {
+  @apply w-[360px] border border-green-500;
+}
+
+.message-log-container {
+  @apply flex-grow border border-yellow-500;
 }
