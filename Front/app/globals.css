@@ -18,9 +18,6 @@
   @apply flex flex-row flex-grow w-full mx-auto max-w-[1512px];
 }
 
-.side-channels-container {
-  @apply w-[72px] border border-sky-500;
-}
 
 .direct-messages-container {
   @apply w-[360px] border border-green-500;
@@ -28,4 +25,31 @@
 
 .message-log-container {
   @apply flex-grow border border-yellow-500;
+}
+
+@layer components {
+  .sidebar-icon {
+    @apply relative flex items-center justify-center 
+    h-20 w-20 mt-2 mb-2 mx-auto  
+  bg-green-900 hover:bg-green-600 dark:bg-gray-800 
+  text-green-500 hover:text-white
+    hover:rounded-xl rounded-3xl
+    transition-all duration-300 ease-linear
+    cursor-pointer shadow-lg ;
+  }
+
+
+
+  .sidebar-tooltip {
+    @apply absolute w-auto p-2 m-2 min-w-max left-14 rounded-md shadow-md
+    text-white bg-gray-900 
+    text-xs font-bold 
+    transition-all duration-75 scale-0 origin-left;
+  }
+
+  .sidebar-hr {
+    @apply bg-green-800
+    border border-green-700 rounded-full
+    mx-2 h-1;
+  }
 }
