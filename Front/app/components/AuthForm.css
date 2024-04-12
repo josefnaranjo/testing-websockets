@@ -12,8 +12,9 @@
   background-size: cover;
 }
 
+/* old: min-h-[500px] */
 .auth-container {
-  @apply flex flex-col items-center min-w-[350px] min-h-[500px] bg-white border-2 border-[#D4F5EA] border-opacity-80 rounded-2xl relative pt-16;
+  @apply flex flex-col items-center min-w-[350px] bg-white border-2 border-[#D4F5EA] border-opacity-80 rounded-2xl relative pt-16;
 }
 
 .rounded-icon {
