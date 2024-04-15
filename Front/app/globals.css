@@ -19,7 +19,7 @@
 }
 
 .side-channels-container {
-  @apply w-[72px] border border-sky-500;
+  @apply w-[150px] border border-sky-500;
 }
 
 .direct-messages-container {
