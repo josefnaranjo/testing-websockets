@@ -22,9 +22,6 @@
   @apply flex flex-row flex-grow w-full mx-auto max-w-[1512px];
 }
 
-.side-channels-container {
-  @apply w-[72px] border border-sky-500;
-}
 
 .direct-messages-container {
   @apply w-[360px] border border-green-500;
