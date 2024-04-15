@@ -1,5 +1,9 @@
-import React from 'react';
+import AuthForm from '../components/AuthForm';
 
-export default function RegisterPage() {
-  return <div>RegisterPage</div>;
+export default function SignIn() {
+  return (
+    <div className="background-container">
+      <AuthForm isRegister={true} />
+    </div>
+  );
 }

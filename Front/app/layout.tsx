@@ -5,10 +5,10 @@ import './globals.css';
 //https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
 
 const inter = Inter({ subsets: ['latin'] });
-const roboto = Roboto({ weight: '400', subsets: ['latin'] });
+const roboto = Roboto({ weight: ['100', '300', '400', '700'], subsets: ['latin'], variable:'--font-roboto' });
 
 export const metadata: Metadata = {
-  title: 'Communation App',
+  title: 'Communication App',
   description: 'Made by MLM Team',
 };
 
@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={roboto.className}>{children}</body>
+      <body className={roboto.variable}>{children}</body>
     </html>
   );
 }

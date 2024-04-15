@@ -6,6 +6,10 @@
 
 /* Notes: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container */
 
+.roboto{
+  font-family: var(--font-roboto);
+}
+
 .project-container {
   @apply flex flex-col w-full h-screen mx-auto;
 }

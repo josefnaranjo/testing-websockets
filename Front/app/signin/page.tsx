@@ -1,3 +1,9 @@
+import AuthForm from '../components/AuthForm';
+
 export default function SignIn() {
-  return <div>Sign In Page</div>;
+  return (
+    <div className="background-container">
+      <AuthForm isRegister={false} />
+    </div>
+  );
 }
