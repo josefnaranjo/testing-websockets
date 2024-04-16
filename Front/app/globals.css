@@ -22,6 +22,12 @@
   @apply flex flex-row flex-grow w-full mx-auto max-w-[1512px];
 }
 
+<<<<<<< HEAD
+=======
+.side-channels-container {
+  @apply w-[150px] border border-sky-500;
+}
+>>>>>>> origin/27-user-dm-log
 
 .direct-messages-container {
   @apply w-[360px] border border-green-500;
