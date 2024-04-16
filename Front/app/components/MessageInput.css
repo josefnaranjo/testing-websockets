@@ -1,0 +1,60 @@
+.input-container {
+  border: 1.5px rgba(156, 163, 175, 0.55) solid;
+  padding-top: 1rem;
+  margin: 1rem;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+}
+
+.entry-and-submit {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+#message-input {
+  width: 90%;
+  height: 3em;
+  margin-left: 1em;
+  outline: none;
+  resize: none;
+}
+
+.input-icons-container {
+  display: flex;
+  align-items: center;
+  border-top: 1.5px rgba(156, 163, 175, 0.55) solid;
+  height: 2.5em;
+  padding-left: 0.5em;
+  padding-top: 0;
+  background-color: rgba(189, 242, 121, 0.21);
+}
+
+.submit-button {
+  border: 1.5px rgba(156, 163, 175, 0.55) solid;
+  background-color: rgba(189, 242, 121, 0.5);
+  display: flex;
+  justify-content: center;
+  border-radius: 50%;
+  min-width: 45px;
+  height: 45px;
+  margin-right: 1em;
+  margin-left: 1em;
+}
+
+.input-icon {
+  margin-left: 0.5em;
+  opacity: 0.7;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.send-icon {
+  position: relative;
+  top: 0.5px;
+  right: 1px;
+}

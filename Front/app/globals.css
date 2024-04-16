@@ -1,6 +1,6 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 /* @apply warning remove: https://github.com/tailwindlabs/tailwindcss/discussions/5258#discussioncomment-8559596 */
 
@@ -15,24 +15,25 @@
 }
 
 .navbar {
-  @apply w-full h-12 text-2xl content-center text-red-400 border border-red-500;
+  @apply w-full min-h-12 text-2xl content-center text-red-400 border border-red-500;
 }
 
 .main-rows {
   @apply flex flex-row flex-grow w-full mx-auto max-w-[1512px];
 }
 
-<<<<<<< HEAD
-=======
 .side-channels-container {
-  @apply w-[150px] border border-sky-500;
+  @apply min-w-[72px] border border-sky-500 hidden md:block; 
 }
->>>>>>> origin/27-user-dm-log
 
 .direct-messages-container {
-  @apply w-[360px] border border-green-500;
+  @apply min-w-[360px] border border-green-500 hidden md:block;
+  /* @apply lg:min-w-[360px]; */
 }
 
 .message-log-container {
-  @apply flex-grow border border-yellow-500;
+  @apply flex-1 w-[934px] flex-grow border border-yellow-500;
+  display: flex;
+  flex-direction: column;
 }
+

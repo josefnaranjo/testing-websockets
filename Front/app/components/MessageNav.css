@@ -1,0 +1,27 @@
+.message-navbar {
+  border-bottom: 1.5px rgba(156, 163, 175, 0.3) solid;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.channel-name {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.nav-icons-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-icon {
+  margin-left: 0.6em;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
