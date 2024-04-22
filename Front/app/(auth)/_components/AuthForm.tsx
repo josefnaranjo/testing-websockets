@@ -1,7 +1,6 @@
 "use client";
 
 //Design Dependecies
-import Link from "next/link";
 import { FaRegUser } from "react-icons/fa6";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { LuKeyRound } from "react-icons/lu";
@@ -13,17 +12,15 @@ import * as z from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@/schemas";
+import FormError from "./FormError";
+import FormSuccess from "./FormSuccess";
 
 interface Props {
   isRegister: boolean;
 }
 
 export default function AuthType({ isRegister }: Props) {
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<z.infer<typeof LoginSchema>>({
+  const { handleSubmit, control } = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
@@ -67,13 +64,21 @@ export default function AuthType({ isRegister }: Props) {
             />
           )}
         />
-        {/* {isRegister && (
+        {isRegister && (
           <Controller
             name="confirmPassword"
             control={control}
-            render={({ field }) => <InputType {...field} placeholder="Confirm Password" type="password" id="confirm-password" Icon={IoCheckmarkCircleOutline} />}
+            render={({ field }) => (
+              <InputType
+                {...field}
+                placeholder="Confirm Password"
+                type="password"
+                id="confirm-password"
+                Icon={IoCheckmarkCircleOutline}
+              />
+            )}
           />
-        )} */}
+        )}
       </div>
 
       {!isRegister && (
@@ -90,24 +95,15 @@ export default function AuthType({ isRegister }: Props) {
         </div>
       )}
 
+      {/* <FormError message="Invalid Credentials" /> */}
+      {/* <FormSuccess message="Success" /> */}
+
       <button
         type="submit"
         className="w-[252px] h-10 bg-emerald-500 text-white text-lg font-medium rounded-md mt-4 "
       >
         {isRegister ? "Create Account" : "Login"}
       </button>
-
-      <div className="flex justify-center items-center w-full my-4">
-        <p className="text-sm italic text-gray-400 pr-1">
-          {isRegister ? "Already" : "Dont"} have an account?
-        </p>
-        <Link
-          href={isRegister ? "/signin" : "/register"}
-          className="text-sm underline text-emerald-400 ml-1"
-        >
-          {isRegister ? "Login" : "Register"} Here
-        </Link>
-      </div>
     </form>
   );
 }
