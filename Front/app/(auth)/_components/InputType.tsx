@@ -7,6 +7,7 @@ interface InputTypeProps {
   type: string;
   id: string;
   Icon: IconType;
+  disabled?: boolean;
 }
 
 const InputType: React.FC<InputTypeProps> = ({
@@ -16,6 +17,7 @@ const InputType: React.FC<InputTypeProps> = ({
   type,
   id,
   Icon,
+  disabled,
 }) => {
   return (
     <div className="relative group">
@@ -23,9 +25,10 @@ const InputType: React.FC<InputTypeProps> = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        required={true}
+        // required={true}
         type={type}
         id={id}
+        disabled={disabled}
         className="border border-gray-200 rounded-md pl-3 pr-10 w-[252px] h-10 outline-gray-400"
       />
       <Icon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:opacity-0 transition-opacity duration-250" />

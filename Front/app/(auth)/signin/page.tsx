@@ -1,6 +1,6 @@
 //Front\app\(auth)\signin\page.tsx
-import AuthForm from '../_components/AuthForm';
+import LoginForm from "../_components/LoginForm";
 
 export default function SignIn() {
-  return <AuthForm isRegister={false} />;
+  return <LoginForm />;
 }

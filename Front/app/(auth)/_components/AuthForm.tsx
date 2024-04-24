@@ -1,35 +1,64 @@
 "use client";
-
-//Design Dependecies
-import { FaRegUser } from "react-icons/fa6";
-import { IoCheckmarkCircleOutline } from "react-icons/io5";
-import { LuKeyRound } from "react-icons/lu";
-import "./AuthForm.css";
-import InputType from "./InputType";
-
-// Form Dependecies
-import * as z from "zod";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "@/schemas";
+import { useState, useTransition } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { IconType } from "react-icons";
+import { z } from "zod";
+import "./AuthForm.css";
 import FormError from "./FormError";
 import FormSuccess from "./FormSuccess";
+import InputType from "./InputType";
 
-interface Props {
-  isRegister: boolean;
+interface FormField {
+  name: string;
+  placeholder: string;
+  type: string;
+  Icon: IconType;
+  defaultValue?: string;
 }
 
-export default function AuthType({ isRegister }: Props) {
-  const { handleSubmit, control } = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+interface AuthFormProps {
+  schema: z.ZodType<any>;
+  onSubmitAction: (values: any) => Promise<any>;
+  formFields: FormField[];
+}
+
+export default function AuthForm({
+  schema,
+  onSubmitAction,
+  formFields,
+}: AuthFormProps) {
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema),
+    // mode: "onSubmit", // Validate only on submit (NOT WORKING)
+    defaultValues: formFields.reduce((acc: Record<string, any>, field) => {
+      acc[field.name] = field.defaultValue || "";
+      return acc;
+    }, {}),
   });
 
-  const onSubmit = (data: z.infer<typeof LoginSchema>) => {
-    console.log(data);
+  const onSubmit = (values: Record<string, any>) => {
+    setError("");
+    setSuccess("");
+
+    startTransition(() => {
+      onSubmitAction(values)
+        .then((data) => {
+          setError(data.error);
+          setSuccess(data.success);
+        })
+        .catch(() => {
+          setError("An error occurred");
+        });
+    });
   };
 
   return (
@@ -38,50 +67,32 @@ export default function AuthType({ isRegister }: Props) {
       className="flex flex-col justify-center items-center"
     >
       <div className="space-y-4">
-        <Controller
-          name="email"
-          control={control}
-          render={({ field }) => (
-            <InputType
-              {...field}
-              placeholder="Email"
-              type="email"
-              id="email"
-              Icon={FaRegUser}
+        {formFields.map((field) => (
+          <div key={field.name}>
+            <Controller
+              name={field.name}
+              control={control}
+              render={({ field: fieldProps }) => (
+                <InputType
+                  {...fieldProps}
+                  placeholder={field.placeholder}
+                  type={field.type}
+                  id={field.name}
+                  Icon={field.Icon}
+                  disabled={isPending}
+                />
+              )}
             />
-          )}
-        />
-        <Controller
-          name="password"
-          control={control}
-          render={({ field }) => (
-            <InputType
-              {...field}
-              placeholder="Password"
-              type="password"
-              id="password"
-              Icon={LuKeyRound}
-            />
-          )}
-        />
-        {isRegister && (
-          <Controller
-            name="confirmPassword"
-            control={control}
-            render={({ field }) => (
-              <InputType
-                {...field}
-                placeholder="Confirm Password"
-                type="password"
-                id="confirm-password"
-                Icon={IoCheckmarkCircleOutline}
-              />
+            {errors[field.name] && (
+              <span className="text-red-500 text-sm">
+                {errors[field.name]?.message as string}
+              </span>
             )}
-          />
-        )}
+          </div>
+        ))}
       </div>
 
-      {!isRegister && (
+      {!(formFields.length > 2) && (
         <div className="flex justify-between items-center w-full mt-4">
           <div className="flex justify-center items-center">
             <input type="checkbox" id="remember" className="mr-1" />
@@ -95,14 +106,15 @@ export default function AuthType({ isRegister }: Props) {
         </div>
       )}
 
-      {/* <FormError message="Invalid Credentials" /> */}
-      {/* <FormSuccess message="Success" /> */}
+      <FormError message={error} />
+      <FormSuccess message={success} />
 
       <button
         type="submit"
-        className="w-[252px] h-10 bg-emerald-500 text-white text-lg font-medium rounded-md mt-4 "
+        className="w-[252px] h-10 bg-emerald-500 text-white text-lg font-medium rounded-md mt-4"
+        disabled={isPending}
       >
-        {isRegister ? "Create Account" : "Login"}
+        {formFields.length > 2 ? "Create Account" : "Login"}
       </button>
     </form>
   );
