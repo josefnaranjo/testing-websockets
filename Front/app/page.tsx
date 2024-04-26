@@ -1,8 +1,8 @@
 'use client';
 import MessageLog from "./MessageLog"
-
 import React, { useState } from "react";
-import UserList, {generateUserList} from "../dm-list/dm-list"; // Importing UserList component
+import UserList, {generateUserList} from "./components/dm-list/dm-list";
+
 export default function Home() {
 
  
