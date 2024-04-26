@@ -1,0 +1,58 @@
+.leftBtns {
+  @apply ml-4 justify-center items-start focus:outline-none text-white text-2xl hover:text-green-700 bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg px-9 py-3.5 whitespace-nowrap border max-w-[90%] max-md:px-5 max-md:max-w-full dark:bg-green-600 hover:bg-yellow-300 dark:focus:ring-green-800
+}
+.leftContainer {
+  @apply flex flex-col grow py-9 pr-px mr-0 w-full text-4xl text-black rounded border border-white shadow-xl border-solid max-md:mt-10 max-md:max-w-full bg-gradient-to-bl from-green-100 via-green-300 to-emerald-700
+}
+.signOutBtn {
+  @apply mt-8 mx-4 justify-center items-start focus:outline-none text-white text-2xl hover:text-amber-400 hover:bg-red-800 bg-green-700 focus:ring-4 focus:ring-red-300 font-medium rounded-full px-9 py-3.5 whitespace-nowrap border max-md:px-5 max-md:max-w-full dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900
+}
+.bottomMenuBtnsPos {
+  @apply mx-2.5 px-6 py-3 text-xs rounded-xl bg-emerald-400 hover:bg-orange-400 max-md:px-5
+}
+.bottomMenuBtnsNeg {
+  @apply mx-2.5 px-6 py-3 text-xs rounded-xl bg-red-400 hover:bg-red-600 max-md:px-5
+}
+.changeProfilePicBtn {
+  @apply flex items-center justify-center mt-10 mb-1.5 text-sm text-black whitespace-nowrap rounded-xl bg-emerald-400 hover:bg-orange-400 px-5 py-3.5 max-md:px-5 max-md:mt-10
+}
+.fontMiddleSection {
+  @apply text-3xl text-emerald-800
+}
+.fontLeftMenu {
+  @apply self-center text-emerald-800
+}
+.buttonsLeftMenu {
+  @apply flex flex-col justify-between mt-7 max-md:max-w-full
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    padding-top: 5px;
+    padding-bottom: 11px;
+    background-color: white;
+  }
+  
+  .header {
+    padding-right: 12px;
+    padding-left: 3.5px;
+    max-width: 1109px;
+    border: 1px solid black;
+    background-image: linear-gradient(to top left, #a7f0a7, #1f9d1f);
+  }
+  
+  .contentWrapper {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .leftSection {
+    flex: 1;
+  }
+  
+  .rightSection {
+    flex: 1;
+  }
+  
