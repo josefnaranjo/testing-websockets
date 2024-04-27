@@ -8,6 +8,7 @@ import "./AuthForm.css";
 import FormError from "./FormError";
 import FormSuccess from "./FormSuccess";
 import InputType from "./InputType";
+import { useRouter } from "next/navigation";
 
 interface FormField {
   name: string;
@@ -31,6 +32,7 @@ export default function AuthForm({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const {
     handleSubmit,
@@ -46,16 +48,23 @@ export default function AuthForm({
   });
 
   const onSubmit = (values: Record<string, any>) => {
-    setError("");
+    setError(""); // Clear errors initially
     setSuccess("");
 
+    // Ensure default behavior is prevented
     startTransition(() => {
       onSubmitAction(values)
         .then((data) => {
-          setError(data.error);
-          setSuccess(data.success);
+          if (data.error) {
+            setError(data.error);
+          } else {
+            setSuccess(data.success);
+            router.push("/");
+            router.refresh();
+          }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error("Error during submission:", error);
           setError("An error occurred");
         });
     });
