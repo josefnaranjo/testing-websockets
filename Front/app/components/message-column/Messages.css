@@ -12,13 +12,14 @@
 .userinfo-container {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .username {
   font-weight: bold;
   padding-left: 1rem;
   padding-right: 0.6rem;
+  padding-top: 0;
 }
 
 .username:hover {
@@ -29,12 +30,15 @@
 .time-entry {
   @apply text-neutral-400 font-normal;
   font-size: 13px;
+  position: relative;
+  top: 2.5px;
+  
 }
 
 .message-container {
   display: flex;
   flex-direction: column;
-  margin-left: 8px;
+  margin-left: 3.2rem;
   min-width: 200px;
   /*width: 99%; giving the container a width*/
   /* @apply max-w-full */
@@ -53,7 +57,8 @@
 .text-message {
   @apply text-black font-normal leading-snug;
   position: relative;
-  padding: 2px 88px 2px 8px;
+  padding: 2px 88px 2px 8px; 
+  top: -1rem;
   width: 100%;
 }
 
@@ -68,6 +73,7 @@
   position: absolute;
   right: 3px;
   top: 4px;
+  padding: 0;
 }
 
 .time-entry-side {
@@ -81,10 +87,17 @@
 .edit-icon {
   color: black;
   opacity: 69.42%;
-  margin-right: 0.25rem;
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
   cursor: pointer;
+  transform: translateY(-7%);
+}
+
+.edit-icon:hover {
+  background-color: rgb(152, 152, 152);
+  border-radius: 10%;
+  align-items: center;
+  display: flex;
 }
 
 .profpop {
@@ -94,3 +107,4 @@
 .username:active .profpop {
   display: block;
 }
+

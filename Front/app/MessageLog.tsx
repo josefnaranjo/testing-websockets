@@ -1,49 +1,115 @@
+import React, { useEffect, useState } from "react";
+import MessageInput from "./components/message-column/MessageInput";
+import MessageNav from "./components/message-column/MessageNav";
+import UserMessages from "./components/message-column/Messages";
 import user from "../public/user.png";
-import animeGirl from "../public/kawaii-gun.jpg";
-import MessageInput from "./components/MessageInput";
-import MessageNav from "./components/MessageNav";
-import UserMessages from "./components/Messages";
+import axios from "axios";
 
-export default function MessageLog() {
+
+const MessageLog: React.FC = () => {
+  // State to manage messages
+  const [userMessages, setUserMessages] = useState<any[]>([
+    {
+      name: "Orchid",
+      img: user,
+      messages: [],
+    }
+  ]);
+
+  // Function to handle sending messages
+  const sendMessage = (message: string) => {
+    // send message to api along with channel it is for and your token.
+    // NOTE replace REDUX.user.name with whatever method is used to fetch user's ID
+    const copyUserMessages = [...userMessages];
+    if (copyUserMessages[copyUserMessages.length -1].userID == 3) {
+      copyUserMessages[copyUserMessages.length -1].messages.push({
+        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        text: message,
+      });
+    } else {
+      copyUserMessages.push({
+        name: 'Orchid',
+        img: user,
+        userID: 3,
+        messages: [{
+          time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+          text: message,
+        }]
+      });
+    }
+    setUserMessages(copyUserMessages);
+  };
+
+  // Make User Messages from channelMessages TODO:: make a type for message objects ;)
+  const convertToUserMessages = (messages: Array<any>): any[] => {
+    const convertedUserMessages: any[] = [];
+    // {img: some image, messages: [], name: string}
+    let lastUserID: number = 0;
+    let currentUserMessage: any = {
+      name: 'yoink',
+      messages: [],
+      img: null,
+      userID: 0
+    };
+    console.log(messages);
+    messages.forEach(message => {
+      if (message.userID === lastUserID) {
+        currentUserMessage.messages.push(convertMessageBody(message));
+        return;
+      }
+      if (lastUserID !== 0) {
+        convertedUserMessages.push(currentUserMessage);
+      }
+      currentUserMessage = {
+        name: message.userID,
+        userID: message.userID,
+        messages: [convertMessageBody(message)],
+        img: null
+      };
+      lastUserID = message.userID;
+    });
+    convertedUserMessages.push(currentUserMessage);
+    return convertedUserMessages;
+  };
+
+  const convertMessageBody = (message: any) => {
+    return {
+      time: 'created at ' + message.createdTS,
+      text: message.messageContent
+    }
+  }
+
+  const channelId = 1;
+ 
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/api/directMessages?id=" + channelId + "&createdTS=0" )
+      .then((res) => {
+        setUserMessages(convertToUserMessages(res.data))
+      })
+      .catch(err => {
+        console.log(err, err.response);
+      })
+  }, []);
+
   return (
     <>
-      <MessageNav channelName="Channel #1" />
+      <MessageNav channelName="Conspiracies" />
       <div className="flex flex-col justify-between h-full">
         <div className="overflow-auto flex-grow max-h-[720px]">
-          <UserMessages
-            img={user}
-            name="Orchid"
-            messages={[
-              {
-                time: "8:09 PM",
-                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-              },
-              { time: "8:10 PM", text: "Another message" },
-              {
-                time: "8:59 PM",
-                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-              },
-              // Add more messages here...
-            ]}
-          />
-          <UserMessages
-            img={animeGirl}
-            name="Uto Chan"
-            messages={[
-              {
-                time: "9:05 PM",
-                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
-              },
-              {
-                time: "9:05 PM",
-                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-              },
-              // Add more messages here...
-            ]}
-          />
+          {userMessages.map((userMessage, index) => (
+            <UserMessages
+              key={index}
+              img={userMessage.img}
+              name={userMessage.name}
+              messages={userMessage.messages} // [{time: string, text: string}, ...]
+            />
+          ))}
         </div>
-        <MessageInput />
+        <MessageInput onSendMessage={sendMessage} />
       </div>
     </>
   );
-}
+};
+
+export default MessageLog;

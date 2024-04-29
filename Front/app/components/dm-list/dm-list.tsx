@@ -47,7 +47,7 @@ const getColorFromState = (state: 'active' | 'away' | 'offline'): string => {
 const UserList: React.FC<{ userList: { [key: string]: User } }> = ({ userList }) => {
     return (
       <div className="list-container">
-        <h2>Chats</h2>
+        <h4>Chats</h4>
         <ul className="user-list">
           {Object.values(userList).map(user => (
             <li key={user.name} className="user-item">
