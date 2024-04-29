@@ -5,7 +5,7 @@
 .background-container {
   @apply flex justify-center items-center w-full h-screen;
 
-  background-image: url('../img/login-bg.jpg');
+  background-image: url('../../img/login-bg.jpg');
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
