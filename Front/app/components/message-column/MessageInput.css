@@ -15,12 +15,11 @@
   margin-bottom: 1em;
 }
 
-#message-input {
-  width: 90%;
-  height: 3em;
-  margin-left: 1em;
-  outline: none;
+textarea {
   resize: none;
+  width: 100%;
+  margin-left: 1rem;
+  outline: none;
 }
 
 .input-icons-container {

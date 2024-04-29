@@ -6,7 +6,7 @@ interface Props {
   channelName: string;
 }
 
-function MessageNav({ channelName }: Props) {
+const MessageNav: React.FC<Props> = ({ channelName }: Props) => {
   return (
     <nav className="message-navbar">
       <h1 className="channel-name">{channelName}</h1>
