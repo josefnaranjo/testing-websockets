@@ -1,19 +1,43 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { GET, POST } from "../api/Settings/page";
 import styles from './AccountSettings.module.css';
 
 const AccountSettings: React.FC = () => {
   const [isEditable, setIsEditable] = useState(false);
-  const [username, setUsername] = useState('');
+  const [userData, setUserData] = useState<any>({}); // State variable to store user data
+
+  useEffect(() => {
+    // Fetch user data when component mounts
+    async function fetchUserData() {
+      try {
+        const response = await GET(); // Call the GET function to fetch user data
+        const data = await response.json();
+        setUserData(data[0]); // Update state with fetched user data
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    }
+    fetchUserData();
+  }, []); // Empty dependency array ensures the effect runs only once on mount
+
 
   const handleModifyClick = () => {
     setIsEditable(true);
   };
 
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     setIsEditable(false);
-    // Add code to save the updated values to backend
-  };
+    try {
+      // Assuming userData contains a userID property and the updated user data
+      const { userID, ...newData } = userData;
+      const response = await POST(userID, newData);
+      const result = await response.json();
+      console.log(result.message); // Log the response message
+    } catch (error) {
+      console.error("Error saving user data:", error);
+    }
+};
 
   const handleCancelClick = () => {
     setIsEditable(false);
@@ -81,39 +105,119 @@ const AccountSettings: React.FC = () => {
                     <div className="flex flex-col justify-between mt-3.5 text-black max-md:mt-10">
                       <div className="flex flex-col justify-between w-full">
                         <div className="flex flex-col justify-between self-start text-base">
-                          <div className={styles.fontMiddleSection}>Basic Information</div>
-                          <div className="mt-9">
-                            <div className="text-base text-black">Username:</div>
+                          <div className={`mt-12 max-md:mt-10 ${styles.fontMiddleSection}`}>Basic Information</div>
+                          <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                            <div className="my-auto text-base">Username:</div>
                             {isEditable ? (
-                              <input
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                              />
-                            ) : (
-                              username
+                                <input
+                                  type="text"
+                                  value={userData.username}
+                                  onChange={(e) => setUserData({ ...userData, username: e.target.value })}
+                                />
+                              ) : (
+                                userData.username
                             )}
                           </div>
-                          <div className="mt-9 ">[Name]</div>
-                          <div className="mt-9">[Date of Birth]</div>
-                          <div className="mt-9">[Business]</div>
-                          <div className="mt-9">[Member Since]</div>
+                          <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                            <div className="my-auto text-base">Name:</div>
+                            {isEditable ? (
+                                <input
+                                  type="text"
+                                  value={userData.name}
+                                  onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                                />
+                              ) : (
+                                userData.name
+                            )}
+                          </div> 
+                          <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                            <div className="my-auto text-base">Date of birth:</div>
+                            {isEditable ? (
+                                <input
+                                  type="text"
+                                  value={userData.dob}
+                                  onChange={(e) => setUserData({ ...userData, dob: e.target.value })}
+                                />
+                              ) : (
+                                userData.dob
+                            )}
+                          </div> 
+                          <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                            <div className="my-auto text-base">Business:</div>
+                            {isEditable ? (
+                                <input
+                                  type="text"
+                                  value={userData.business}
+                                  onChange={(e) => setUserData({ ...userData, business: e.target.value })}
+                                />
+                              ) : (
+                                userData.business
+                            )}
+                          </div> 
+                          <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                            <div className="my-auto text-base">Member Since:</div>
+                            {isEditable ? (
+                                <input
+                                  type="text"
+                                  value={userData.memberSince}
+                                  onChange={(e) => setUserData({ ...userData, memberSince: e.target.value })}
+                                />
+                              ) : (
+                                userData.memberSince
+                            )}
+                          </div>  
                         </div>
-                        <div className="mt-14 max-md:mt-10">Email Address</div>
-                        <div className="flex gap-5 justify-between self-start mt-12 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                          <div className="my-auto text-base">[Email]</div>
+                        <div className={`mt-12 max-md:mt-10 ${styles.fontMiddleSection}`}>Email Address</div>
+                        <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                          <div className="my-auto text-base">Email:</div>
+                          {isEditable ? (
+                              <input
+                                type="text"
+                                value={userData.email}
+                                onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                              />
+                            ) : (
+                              userData.email
+                          )}
                         </div>
                         <div className={`mt-12 max-md:mt-10 ${styles.fontMiddleSection}`}>Phone Number</div>
-                        <div className="flex gap-5 justify-between items-center mt-2 max-md:mt-10">
-                          <div className="text-base ">[Phone Number]</div>
+                        <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                          <div className="text-base">Phone Number:</div>
+                          {isEditable ? (
+                              <input
+                                type="text"
+                                value={userData.phone}
+                                onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+                              />
+                            ) : (
+                              userData.phone
+                          )}
                         </div>
                       </div>
-                      <div className={`mt-6 ${styles.fontMiddleSection}`}>Region Settings</div>
-                      <div className="mt-8 text-base">[Country]</div>
-                      <div className="flex gap-5 justify-between self-start mt-3.5 whitespace-nowrap">
-                        <div className="self-start mt-4 text-base">
-                          [Language]
+                      <div className={`mt-12 max-md:mt-10 ${styles.fontMiddleSection}`}>Region Settings</div>
+                      <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                        <div className="text-base">Country:</div>
+                        {isEditable ? (
+                              <input
+                                type="text"
+                                value={userData.country}
+                                onChange={(e) => setUserData({ ...userData, country: e.target.value })}
+                              />
+                            ) : (
+                              userData.country
+                          )}
                         </div>
+                      <div className="flex gap-5 justify-between self-start mt-12 whitespace-nowrap max-md:pr-5 max-md:mt-10">
+                        <div className="text-base">Language:</div>
+                        {isEditable ? (
+                              <input
+                                type="text"
+                                value={userData.language}
+                                onChange={(e) => setUserData({ ...userData, language: e.target.value })}
+                              />
+                            ) : (
+                              userData.language
+                          )}
                       </div>
                     </div>
                   </div>
@@ -173,8 +277,17 @@ const AccountSettings: React.FC = () => {
                     style={{ zIndex: 1 }}
                   />
                 </div>
-                <div className="self-center mt-10 ml-px text-base text-black">
-                  About...
+                <div className={`mt-12 max-md:mt-10 ${styles.aboutContainer}`}>
+                  <div className="text-base">About:</div>
+                  {isEditable ? (
+                    <input
+                      type="text"
+                      value={userData.about}
+                      onChange={(e) => setUserData({ ...userData, about: e.target.value })}
+                    />
+                  ) : (
+                    <div className={styles.aboutText}>{userData.about}</div>
+                  )}
                 </div>
               </div>
               <button className={styles.changeProfilePicBtn}>
