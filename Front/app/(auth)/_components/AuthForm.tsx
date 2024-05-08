@@ -9,6 +9,7 @@ import FormError from "./FormError";
 import FormSuccess from "./FormSuccess";
 import InputType from "./InputType";
 import { useRouter } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 
 interface FormField {
   name: string;
@@ -33,6 +34,13 @@ export default function AuthForm({
   const [success, setSuccess] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
+  // Get the error from the URL query params
+  // const searchParams = useSearchParams();
+  // const urlError =
+  //   searchParams.get("error") === "OAuthAccountNotLinked"
+  //     ? "Email already in use with another account"
+  //     : "";
 
   const {
     handleSubmit,
@@ -120,7 +128,7 @@ export default function AuthForm({
 
       <button
         type="submit"
-        className="w-[252px] h-10 bg-emerald-500 text-white text-lg font-medium rounded-md mt-4"
+        className="w-[252px] h-10 bg-emerald-500 text-white text-lg font-medium rounded-md mt-4 hover:bg-emerald-600"
         disabled={isPending}
       >
         {formFields.length > 2 ? "Create Account" : "Login"}

@@ -1,11 +1,11 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 .background-container {
   @apply flex justify-center items-center w-full h-screen;
 
-  background-image: url('../../img/login-bg.jpg');
+  background-image: url("../../img/login-bg.jpg");
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
@@ -22,5 +22,5 @@
 }
 
 .google-link {
-  @apply flex flex-row justify-center items-center bg-emerald-500 rounded-3xl w-[14.5rem] h-11 mb-3 space-x-2;
+  @apply flex flex-row justify-center items-center bg-emerald-500 hover:bg-emerald-600 rounded-3xl w-[14.5rem] h-11 mb-3 space-x-2;
 }
