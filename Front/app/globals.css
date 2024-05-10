@@ -6,12 +6,17 @@
 
 /* Notes: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container */
 
-.roboto{
+.roboto {
   font-family: var(--font-roboto);
 }
 
 .project-container {
   @apply flex flex-col w-full h-screen mx-auto;
+  /* bg-gradient-to-r from-green-200 to-green-300 */
+  /* background-image: linear-gradient(to right, #6ee7b7 0%, #34d399 80%); */
+  background-color: #86efac;
+  /* background-image: url("./img/mantis.png"); */
+  /* background-size: 10%; */
 }
 
 .navbar {
@@ -23,17 +28,18 @@
 }
 
 .side-channels-container {
-  @apply min-w-[72px] border border-sky-500 hidden md:block; 
+  @apply min-w-[72px] border hidden md:block;
+  /*@apply border-sky-500 */
 }
 
 .direct-messages-container {
-  @apply min-w-[360px] border border-green-500 hidden md:block;
-  /* @apply lg:min-w-[360px]; */
+  @apply min-w-[360px] border hidden md:block;
+  /*@apply lg:min-w-[360px] border-green-500  */
 }
 
 .message-log-container {
-  @apply flex-1 w-[934px] flex-grow border border-yellow-500;
+  @apply flex-1 w-[934px] flex-grow border;
   display: flex;
   flex-direction: column;
+  /* border-yellow-500 */
 }
-

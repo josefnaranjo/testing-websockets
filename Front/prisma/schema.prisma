@@ -1,10 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-// https://authjs.dev/getting-started/adapters/prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -28,6 +21,9 @@ model User {
   password      String?
   role          UserRole  @default(USER)
   accounts      Account[]
+  messages      Message[] //New
+  createdAt     DateTime  @default(now()) //New
+  updatedAt     DateTime  @updatedAt //New
 }
 
 model Account {
@@ -49,4 +45,34 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
+}
+
+model Server {
+  id        String    @id @default(cuid())
+  name      String
+  channels  Channel[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Channel {
+  id        String    @id @default(cuid())
+  name      String
+  isPrivate Boolean   @default(false)
+  serverId  String?
+  server    Server?   @relation(fields: [serverId], references: [id])
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  channelId String
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
