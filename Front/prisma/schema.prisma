@@ -93,8 +93,3 @@ model Settings {
   language    String
   about       String
 }
-
-enum UserRole {
-  ADMIN
-  USER
-}
