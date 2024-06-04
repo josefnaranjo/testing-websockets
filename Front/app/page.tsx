@@ -1,7 +1,7 @@
 "use client";
 import MessageLog from "./MessageLog";
 import React, { useState } from "react";
-import SideBar from "./components/SideBar/SideBar";
+import SideBar from "./components/SideBar/SideBar/SideBar";
 import UserList, { generateUserList } from "./components/dm-list/dm-list";
 
 export default function Home() {

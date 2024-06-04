@@ -1,0 +1,18 @@
+/* Following code focuses on the styling for the pop up when the user clicks on Add channel */
+
+.add-popup {
+    @apply flex p-2 m-2 min-w-max mt-12 rounded-md shadow-md
+    w-auto bg-green-400 text-white z-10
+    border-green-800;
+}
+
+.upload-channel {
+    @apply h-20 w-20 flex justify-center items-center mt-2 mb-2 mx-auto
+    bg-green-900 hover:bg-green-600 hover:rounded-xl rounded-3xl
+    transition-all duration-300 ease-linear
+    cursor-pointer
+}
+
+.add-button {
+    @apply bg-green-800 hover:bg-green-200 px-2 mt-2 rounded-lg hover:text-green-800 font-bold
+}

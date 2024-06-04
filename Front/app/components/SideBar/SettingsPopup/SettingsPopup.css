@@ -1,0 +1,4 @@
+.logout-button {
+    @apply flex self-center px-4 rounded-xl pt-1 pb-1 hover:bg-green-300 hover:text-green-800
+    hover:cursor-pointer bg-green-600 mt-1 font-bold text-xl
+}

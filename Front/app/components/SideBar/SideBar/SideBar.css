@@ -1,0 +1,8 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Following code focuses on the styling for the sidebar */
+.sidebar-container {
+    background-color: rgba(189, 242, 121, 0.5)
+}
