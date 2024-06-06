@@ -2,11 +2,13 @@ import React, { useState, useEffect, MouseEvent } from 'react';
 import { GiAmericanFootballBall } from "react-icons/gi";
 import { IoIosAddCircle } from "react-icons/io";
 import { BsGearFill } from "react-icons/bs";
+import { IoSearch } from "react-icons/io5";
 import SideBarIcon from '../SideBarIcon/SideBarIcon';
 import Divider from '../Divider/Divider';
 import Popup from '../Popup/Popup';
 import SettingsPopup from '../SettingsPopup/SettingsPopup';
 import AddPopup from '../AddPopup/AddPopup';
+import SearchPopup from '../SearchPopup/SearchPopup';
 import './SideBar.css';
 
 interface Server {
@@ -23,6 +25,7 @@ const SideBar = () => {
     const [popupVisible, setPopupVisible] = useState(false);
     const [settingsPopupVisible, setSettingsPopupVisible] = useState(false);
     const [addPopupVisible, setAddPopupVisible] = useState(false);
+    const [searchPopupVisible, setSearchPopupVisible] = useState(false);
     const [servers, setServers] = useState<Server[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [newServerName, setNewServerName] = useState('');
@@ -53,6 +56,7 @@ const SideBar = () => {
             setPopupVisible(true);
             setSettingsPopupVisible(false);
             setAddPopupVisible(false);
+            setSearchPopupVisible(false);
             setIsEditing(false); // Reset edit mode when switching servers
         }
     };
@@ -70,6 +74,7 @@ const SideBar = () => {
             setSettingsPopupVisible((prev) => !prev);
             setPopupVisible(false);
             setAddPopupVisible(false);
+            setSearchPopupVisible(false);
         }
     };
 
@@ -80,12 +85,25 @@ const SideBar = () => {
             setAddPopupVisible((prev) => !prev);
             setSettingsPopupVisible(false);
             setPopupVisible(false);
+            setSearchPopupVisible(false);
+        }
+    };
+
+    const handleSearchClick = (text?: string, event?: MouseEvent) => {
+        if (event) {
+            const { clientX, clientY } = event;
+            setPopupPosition({ x: clientX, y: clientY });
+            setSearchPopupVisible((prev) => !prev);
+            setAddPopupVisible(false);
+            setSettingsPopupVisible(false);
+            setPopupVisible(false);
         }
     };
 
     const handleClosePopup = () => setPopupVisible(false);
     const handleCloseSettingsPopup = () => setSettingsPopupVisible(false);
     const handleCloseAddPopup = () => setAddPopupVisible(false);
+    const handleCloseSearchPopup = () => setSearchPopupVisible(false);
 
     const handleLeaveServer = async () => {
         try {
@@ -138,6 +156,12 @@ const SideBar = () => {
 
     return (
         <div className='top-0 left-0 h-full w-[72px] m-0 flex flex-col text-white shadow-lg sidebar-container'>
+            <SideBarIcon
+                icon={<IoSearch size={"35px"}/>}
+                text = "Search"
+                onClick={handleSearchClick}
+             />
+            <Divider />
             <SideBarIcon 
                 icon={<IoIosAddCircle size={"40px"} />} 
                 text="Add Server" 
@@ -172,6 +196,7 @@ const SideBar = () => {
             />}
             {settingsPopupVisible && <SettingsPopup onClose={handleCloseSettingsPopup} position={popupPosition} />}
             {addPopupVisible && <AddPopup onClose={handleCloseAddPopup} position={popupPosition} />}
+            {searchPopupVisible && <SearchPopup onClose={handleCloseSearchPopup} position={popupPosition} />}
         </div>
     )
 };

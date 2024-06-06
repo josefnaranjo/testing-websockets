@@ -54,22 +54,19 @@ const AddPopup = ({ onClose, position }: AddPopupProps) => {
             onClick={onClose}
         >
             <ul className='add-popup-list flex flex-col items-center'>
-                <li className='font-bold text-green-900'>Create a Server</li>
-                <div className="upload-channel" onClick={stopPropagation}>
-                    <FaCamera size={"45px"} />
-                </div>
+                <li className='font-bold text-green-900 mb-4'>Create a Server</li>
                 <input
                     type='text'
-                    placeholder='  Server ID'
-                    className='ml-1 rounded-lg text-black mb-4'
+                    placeholder='Server ID'
+                    className='pl-3 ml-1 rounded-lg text-black mb-4'
                     onClick={stopPropagation}
                     value={channelId}
                     onChange={(e) => setServerId(e.target.value)}
                 />
                 <input
                     type='text'
-                    placeholder='  Server Name'
-                    className='ml-1 rounded-lg text-black'
+                    placeholder='Server Name'
+                    className='pl-3 ml-1 rounded-lg text-black'
                     onClick={stopPropagation}
                     value={channelName}
                     onChange={(e) => setServerName(e.target.value)}
