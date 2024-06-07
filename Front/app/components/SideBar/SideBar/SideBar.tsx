@@ -169,9 +169,8 @@ const SideBar = () => {
             />
             <Divider />
             {servers.map(server => (
-                <SideBarIcon 
+                <SideBarIcon
                     key={server.id}
-                    icon={<GiAmericanFootballBall size={"30px"} />} // Adjust icon as needed
                     text={server.name} 
                     onClick={handleIconClick}
                     onDoubleClick={(text, event) => handleIconDoubleClick(text, event, server.id)}
