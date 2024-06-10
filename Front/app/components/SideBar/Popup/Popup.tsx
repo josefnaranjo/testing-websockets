@@ -41,7 +41,7 @@ const Popup = ({
             {isEditing ? (
                 <li className="popup-item">
                     <input 
-                        className="w-full rounded-xl"
+                        className="w-full rounded-lg pl-2"
                         type="text" 
                         value={newServerName} 
                         onChange={(e) => setNewServerName(e.target.value)} 
@@ -54,11 +54,9 @@ const Popup = ({
                 <li className="popup-item" onClick={onEdit}>Edit Name of {server}</li>
             )}
             <Divider />
-            <li className="popup-item">Add Member to {server}</li>
+            <li className="popup-item">Invite Member to {server}</li>
             <Divider />
             <li className="popup-item">Edit Member of {server}</li>
-            <Divider />
-            <li className="popup-item">Change Picture of {server}</li>
             <Divider />
             <button className="popup-item leave" onClick={onLeave}>Leave {server}</button>
         </ul>

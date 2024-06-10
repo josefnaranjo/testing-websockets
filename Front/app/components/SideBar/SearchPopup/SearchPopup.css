@@ -3,7 +3,7 @@
 }
 
 .input-field{
-    @apply pl-3 rounded-xl text-black;
+    @apply pl-3 rounded-lg text-black;
 }
 
 .search-button{
