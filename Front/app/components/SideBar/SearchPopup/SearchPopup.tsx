@@ -10,6 +10,7 @@ interface SearchPopupProps {
 interface SearchResult {
     id: string;
     name?: string;
+    type: 'user' | 'server'
     // Add any other common fields if necessary
   }
   
@@ -31,7 +32,11 @@ const SearchPopup = ({ onClose, position }: SearchPopupProps) => {
             const users = await usersResponse.json();
             const serversResponse = await fetch(`/api/servers?query=${searchQuery}`);
             const servers = await serversResponse.json();
-            setResults([...users, ...servers]);
+
+            const typeUsers = users.map((user: any) => ({...user, type: 'user' }));
+            const typeServers = servers.map((server: any) => ({...server, type: 'server' }));
+
+            setResults([...typeUsers, ...typeServers]);
         } catch (error) {
             console.error('Error searching:', error);
         }
@@ -47,7 +52,7 @@ const SearchPopup = ({ onClose, position }: SearchPopupProps) => {
             }}
             onClick={onClose}
         >
-            <div onClick={stopPropagation} className='flex flex-col'> 
+            <div onClick={stopPropagation} className='flex flex-col items-center'> 
                 <span className='heading-text'>Search for a User or Server</span>
                 <input 
                     className='input-field'
@@ -60,8 +65,21 @@ const SearchPopup = ({ onClose, position }: SearchPopupProps) => {
                 <button className='search-button' onClick={handleSearch}>Search</button>
                 <div className="search-results">
                     {results.map((result) => (
-                        <div key={result.id} className="flex result-item text-green-900 font-bold justify-center"> 
-                            {result.name || result.id} (ID: {result.id})
+                        <div key={result.id} className="flex flex-col result-item text-green-900 font-bold justify-center"> 
+                            <div>
+                                {result.type === 'user' ? 'User' : 'Server'}: {result.name || result.id} (ID: {result.id})
+                            </div>
+                            <div className='search-button-container flex self-center'>
+                                {result.type === 'user' ? (
+                                    <button className='friend-button'>
+                                        Add as Friend
+                                    </button>
+                                ) : (
+                                    <button className='server-button'>
+                                        Request to Join
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>

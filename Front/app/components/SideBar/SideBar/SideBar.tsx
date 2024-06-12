@@ -161,7 +161,6 @@ const SideBar = () => {
                 text = "Search"
                 onClick={handleSearchClick}
              />
-            <Divider />
             <SideBarIcon 
                 icon={<IoIosAddCircle size={"40px"} />} 
                 text="Add Server" 
