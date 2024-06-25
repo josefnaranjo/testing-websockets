@@ -21,10 +21,10 @@ model User {
   password      String?
   role          UserRole  @default(USER)
   accounts      Account[]
-  messages      Message[] // New
-  settings      Settings? // New
-  createdAt     DateTime  @default(now()) // New
-  updatedAt     DateTime  @updatedAt // New
+  messages      Message[]
+  settings      Settings?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Account {
@@ -92,4 +92,6 @@ model Settings {
   country     String
   language    String
   about       String
+
+  @@index([userId])
 }

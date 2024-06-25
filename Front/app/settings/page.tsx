@@ -1,18 +1,26 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import styles from './AccountSettings.module.css';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import styles from "./AccountSettings.module.css";
+import ImageUpload from "../upload/page";
+import { IoPersonCircleOutline } from "react-icons/io5";
+import SectionHeading from "./_components/SectionHeading";
+import SettingInputField from "./_components/SettingInputField";
+import Image from "next/image";
 
 const AccountSettings: React.FC = () => {
-  const [isEditable, setIsEditable] = useState(false);
   const [userData, setUserData] = useState<any>(null); // State variable to store user data
+  const [originalData, setOriginalData] = useState<any>(null); // To store original data
   const [isLoading, setIsLoading] = useState(true);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/api/settings');
-      console.log('Fetched user data:', response.data); // Debugging log
+      const response = await axios.get("/api/settings");
+      console.log("Fetched user data:", response.data);
       setUserData(response.data);
+      setOriginalData(response.data);
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
@@ -24,314 +32,185 @@ const AccountSettings: React.FC = () => {
     fetchUserData();
   }, []);
 
-  const handleModifyClick = () => {
-    setIsEditable(true);
-  };
-
   const handleSaveClick = async () => {
-    setIsEditable(false);
     try {
-      await axios.put(`/api/settings`, userData);
-      console.log('User data updated successfully');
+      await axios.put("/api/settings", userData);
+      console.log("User data updated successfully");
+      setOriginalData(userData);
     } catch (error) {
       console.error("Error saving user data:", error);
     }
   };
 
   const handleCancelClick = () => {
-    setIsEditable(false);
-    // Reload user data to discard changes
-    fetchUserData();
+    setUserData(originalData);
   };
 
-  const userStgsBtns = [
-    { text: 'About Me' },
-    { text: 'Privacy Settings' },
-    { text: 'Devices' },
-    { text: 'Friend Requests' },
-  ];
+  const handleInputChange = (field: string, value: string) => {
+    setUserData({ ...userData, [field]: value });
+  };
 
-  const appStgsBtns = [
-    { text: 'Customize' },
-    { text: 'Language' },
-    { text: 'Advanced' },
-    { text: 'Chat' },
-  ];
+  const handleOverlayClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    if (e.target === e.currentTarget) {
+      setShowImageUpload(false);
+    }
+  };
 
-  const imageUrl = 'https://cdn.builder.io/api/v1/image/assets/TEMP/86bb4ecfb1535e254e4314bbcb4638396e57940199e9369d6a1260ca6e6284a2?apiKey=15594f3247654119829779c6d3e94932';
-  const imageSizes = [
-    { width: 100, size: '100w' },
-    { width: 200, size: '200w' },
-    { width: 400, size: '400w' },
-    { width: 800, size: '800w' },
-    { width: 1200, size: '1200w' },
-    { width: 1600, size: '1600w' },
-    { width: 2000, size: '2000w' },
-  ];
+  const hasChanges = JSON.stringify(userData) !== JSON.stringify(originalData);
 
-  const srcSet = imageSizes
-    .map(({ width, size }) => `${imageUrl}&width=${width} ${size}`)
-    .join(', ');
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!userData) {
+    return <div>No data available. Please complete your profile.</div>;
+  }
 
   return (
-    <div className={`roboto ${styles.container}`}>
-      <div className={`py-4 pr-12 pl-3.5 ${styles.header}`}>
-        <div className={`flex gap-5 max-md:flex-col max-md:gap-0 ${styles.contentWrapper}`}>
-          <div className="flex flex-col w-[74%] max-md:ml-0 max-md:w-full">
-            <div className="flex flex-col grow max-md:mt-10 max-md:max-w-full">
-              <div className="pr-32 max-md:max-w-full">
-                <div className="flex gap-5 max-md:flex-col max-md:gap-0">
-                  <div className={`flex flex-col w-3/5 max-md:ml-0 max-md:w-full ${styles.leftSection}`}>
-                    <div className={styles.leftContainer}>
-                      <div className={styles.fontLeftMenu}>
-                        User Settings
-                      </div>
-                      <div className={styles.buttonsLeftMenu}>
-                        {userStgsBtns.map((button, index) => (
-                          <button 
-                            key={index} 
-                            type="button" 
-                            className={styles.leftBtns}
-                          >
-                            {button.text}
-                          </button>
-                        ))}
-                      </div>
-                      <div className={`mt-8 mb-6 ${styles.fontLeftMenu}`}>
-                        App Settings
-                      </div>
-                      <div className={styles.buttonsLeftMenu}>
-                        {appStgsBtns.map((button, index) => (
-                          <button 
-                            key={index} 
-                            type="button" 
-                            className={styles.leftBtns}
-                          >
-                            {button.text}
-                          </button>
-                        ))}
-                      </div>
-                      <button type="button" className={styles.signOutBtn}>
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
-                  <div className={`flex flex-col ml-5 w-2/5 max-md:ml-0 max-md:w-full ${styles.rightSection}`}>
-                    <div className="flex flex-col justify-between mt-3.5 text-black max-md:mt-10">
-                      <div className="flex flex-col justify-between w-full">
-                        <div className="flex flex-col justify-between self-start text-base">
-                          <div className={`mt-12 max-md:mt-10 ${styles.fontMiddleSection}`}>Basic Information</div>
-                          {isLoading ? (
-                            <div>Loading...</div>
-                          ) : !userData ? (
-                            <div>No data available. Please complete your profile.</div>
-                          ) : (
-                            <>
-                              <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                                <div className="my-auto text-base">Username:</div>
-                                {isEditable ? (
-                                  <input
-                                    type="text"
-                                    value={userData.username}
-                                    onChange={(e) => setUserData({ ...userData, username: e.target.value })}
-                                  />
-                                ) : (
-                                  userData.username
-                                )}
-                              </div>
-                              <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                                <div className="my-auto text-base">Name:</div>
-                                {isLoading || !userData || !userData.name ? (
-                                  <div>No data available. Please complete your profile.</div>
-                                ) : isEditable ? (
-                                  <input
-                                    type="text"
-                                    value={userData.name}
-                                    onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                                  />
-                                ) : (
-                                  userData.name
-                                )}
-                              </div>
-                              <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                                <div className="my-auto text-base">Date of birth:</div>
-                                {isEditable ? (
-                                  <input
-                                    type="text"
-                                    value={userData.dob}
-                                    onChange={(e) => setUserData({ ...userData, dob: e.target.value })}
-                                  />
-                                ) : (
-                                  userData.dob
-                                )}
-                              </div>
-                              <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                                <div className="my-auto text-base">Business:</div>
-                                {isEditable ? (
-                                  <input
-                                    type="text"
-                                    value={userData.business}
-                                    onChange={(e) => setUserData({ ...userData, business: e.target.value })}
-                                  />
-                                ) : (
-                                  userData.business
-                                )}
-                              </div>
-                              <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                                <div className="my-auto text-base">Member Since:</div>
-                                {isEditable ? (
-                                  <input
-                                    type="text"
-                                    value={userData.memberSince}
-                                    onChange={(e) => setUserData({ ...userData, memberSince: e.target.value })}
-                                  />
-                                ) : (
-                                  userData.memberSince
-                                )}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        <div className={`mt-12 max-md:mt-10 ${styles.fontMiddleSection}`}>Email Address</div>
-                        <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                          <div className="my-auto text-base">Email:</div>
-                          {isLoading || !userData || !userData.email ? (
-                            <div>No data available. Please complete your profile.</div>
-                          ) : isEditable ? (
-                            <input
-                              type="text"
-                              value={userData.email}
-                              onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                            />
-                          ) : (
-                            userData.email
-                          )}
-                        </div>
-                        <div className={`mt-12 max-md:mt-10 ${styles.fontMiddleSection}`}>Phone Number</div>
-                        <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                          <div className="text-base">Phone Number:</div>
-                          {isLoading ? (
-                            <div>Loading...</div>
-                          ) : !userData ? (
-                            <div>No data available. Please complete your profile.</div>
-                          ) : isEditable ? (
-                            <input
-                              type="text"
-                              value={userData.phone}
-                              onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
-                            />
-                          ) : (
-                            userData.phone
-                          )}
-                        </div>
-                      </div>
-                      <div className={`mt-12 max-md:mt-10 ${styles.fontMiddleSection}`}>Region Settings</div>
-                      <div className="flex gap-5 justify-between self-start mt-9 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                        <div className="text-base">Country:</div>
-                        {isLoading ? (
-                          <div>Loading...</div>
-                        ) : !userData ? (
-                          <div>No data available. Please complete your profile.</div>
-                        ) : isEditable ? (
-                          <input
-                            type="text"
-                            value={userData.country}
-                            onChange={(e) => setUserData({ ...userData, country: e.target.value })}
-                          />
-                        ) : (
-                          userData.country
-                        )}
-                      </div>
-                      <div className="flex gap-5 justify-between self-start mt-12 whitespace-nowrap max-md:pr-5 max-md:mt-10">
-                        <div className="text-base">Language:</div>
-                        {isLoading ? (
-                          <div>Loading...</div>
-                        ) : !userData ? (
-                          <div>No data available. Please complete your profile.</div>
-                        ) : isEditable ? (
-                          <input
-                            type="text"
-                            value={userData.language}
-                            onChange={(e) => setUserData({ ...userData, language: e.target.value })}
-                          />
-                        ) : (
-                          userData.language
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center ml-auto mt-6">
-                <div className="flex">
-                  {isEditable ? (
-                    <>
-                      <button
-                        className={styles.bottomMenuBtnsPos}
-                        onClick={handleSaveClick}
-                      >
-                        Save
-                      </button>
-                      <button
-                        className={styles.bottomMenuBtnsNeg}
-                        onClick={handleCancelClick}
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        className={styles.bottomMenuBtnsPos}
-                        onClick={handleModifyClick}
-                      >
-                        Modify
-                      </button>
-                      <button
-                        className={styles.bottomMenuBtnsNeg}
-                      >
-                        Delete Account
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col ml-5 w-[26%] max-md:ml-0 max-md:w-full mr-2">
-            <div className="flex flex-col max-md:mt-10">
-              <div className="flex flex-col pr-px pl-8 max-md:pl-5">
-                <div className={`${styles.imageContainer}`}>
-                  <img
-                    loading="lazy"
-                    srcSet={srcSet}
-                    className={styles.profileImage}
+    <div className="flex min-h-screen justify-center items-center bg-green-100">
+      <div className="flex flex-col justify-center items-center border-4 px-7 py-6 rounded-lg border-green-700 bg-gradient-to-tl from-green-200 to-green-300 h-full  shadow-xl">
+        <div className="flex flex-col sm:flex-row space-x-2">
+          <div className="flex flex-col w-[19rem]">
+            <div className="flex flex-col justify-center items-center ">
+              <div
+                className="h-32 w-32 rounded-full hover:cursor-pointer"
+                onClick={() => setShowImageUpload(true)}
+              >
+                {userData.settings && userData.settings.user.image ? (
+                  <Image
+                    src={userData.settings.user.image}
                     alt="Profile"
+                    layout="fill"
+                    objectFit="cover"
                   />
-                </div>
-                <div className={`mt-12 max-md:mt-10 ${styles.aboutContainer}`}>
-                  <div className="text-base">About:</div>
-                  {isLoading ? (
-                    <div>Loading...</div>
-                  ) : !userData ? (
-                    <div>No data available. Please complete your profile.</div>
-                  ) : isEditable ? (
-                    <input
-                      type="text"
-                      value={userData.about}
-                      onChange={(e) => setUserData({ ...userData, about: e.target.value })}
-                    />
-                  ) : (
-                    userData.about
-                  )}
-                </div>
+                ) : (
+                  <IoPersonCircleOutline className="text-9xl text-gray-700" />
+                )}
               </div>
-              <button className={styles.changeProfilePicBtn}>
+
+              <textarea
+                value={userData.about || ""}
+                onChange={(e) => handleInputChange("about", e.target.value)}
+                className="flex text-center bg-transparent text-xl font-medium outline-none resize-none overflow-hidden"
+                placeholder="Tell us about yourself"
+              />
+
+              <button
+                className="flex items-center justify-center font-medium text-gray-800 whitespace-nowrap rounded-xl bg-emerald-400 hover:bg-emerald-500 px-3 py-2 mt-3"
+                onClick={() => setShowImageUpload(true)}
+              >
                 Change Profile Picture
               </button>
+
+              {showImageUpload && (
+                <div
+                  className={styles.modalOverlay}
+                  onClick={handleOverlayClick}
+                >
+                  <div className={styles.modalContent}>
+                    <ImageUpload
+                      userId={userData?.userId}
+                      onClose={() => setShowImageUpload(false)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col w-[19rem] m-auto ">
+              <SectionHeading>Region</SectionHeading>
+
+              <SettingInputField
+                label="Country"
+                type="text"
+                value={userData.country || ""}
+                onChange={(e) => handleInputChange("country", e.target.value)}
+              />
+
+              <SettingInputField
+                label="Language"
+                type="text"
+                value={userData.language || ""}
+                onChange={(e) => handleInputChange("language", e.target.value)}
+              />
             </div>
           </div>
+
+          <div className="flex flex-col w-[19rem] ">
+            <SectionHeading>Basic Information</SectionHeading>
+
+            <SettingInputField
+              label="Username"
+              type="text"
+              name="username"
+              value={userData.username || ""}
+              onChange={(e) => handleInputChange("username", e.target.value)}
+            />
+
+            <SettingInputField
+              label="Name"
+              type="text"
+              name="name"
+              value={userData.name || ""}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+            />
+
+            <SettingInputField
+              label="Date of birth"
+              type="text"
+              name="dob"
+              value={userData.dob || ""}
+              onChange={(e) => handleInputChange("dob", e.target.value)}
+            />
+
+            <SettingInputField
+              label="Business"
+              type="text"
+              value={userData.business || ""}
+              onChange={(e) => handleInputChange("business", e.target.value)}
+            />
+
+            <SettingInputField
+              label="Member Since"
+              type="text"
+              value={userData.memberSince || ""}
+              onChange={(e) => handleInputChange("memberSince", e.target.value)}
+            />
+
+            <SettingInputField
+              label="Email"
+              type="password"
+              value={userData.email || ""}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+            />
+
+            <SettingInputField
+              label="Phone Number"
+              type="password"
+              value={userData.phone || ""}
+              onChange={(e) => handleInputChange("phone", e.target.value)}
+            />
+          </div>
         </div>
+
+        {hasChanges && (
+          <div className="flex justify-center mt-3 space-x-4">
+            <button
+              className="px-4 py-2 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              onClick={handleSaveClick}
+            >
+              Save Changes
+            </button>
+            <button
+              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+              onClick={handleCancelClick}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
