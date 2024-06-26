@@ -12,6 +12,18 @@ enum UserRole {
   USER
 }
 
+enum MemberRole {
+  ADMIN
+  MODERATOR
+  GUEST
+}
+
+enum ChannelType {
+  TEXT
+  AUDIO
+  VOICE
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -21,10 +33,13 @@ model User {
   password      String?
   role          UserRole  @default(USER)
   accounts      Account[]
-  messages      Message[] // New
-  settings      Settings? // New
-  createdAt     DateTime  @default(now()) // New
-  updatedAt     DateTime  @updatedAt // New
+  messages      Message[]
+  settings      Settings?
+  profile       Profile? // Changed to optional relation to Profile
+  friends       Friend[]  @relation("UserFriends") // Added relation to Friend
+  friendOf      Friend[]  @relation("UserFriendOf") // Added inverse relation to Friend
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Account {
@@ -43,37 +58,84 @@ model Account {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) // Defines relation with User model
 
-  @@id([provider, providerAccountId])
+  @@id([provider, providerAccountId]) // Composite primary key
+}
+
+model Profile {
+  id     String @id @default(uuid())
+  userId String @unique
+  name   String
+  imgURL String @db.Text
+  email  String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade) // Defines relation with User model
+  servers  Server[]
+  members  Member[]
+  channels Channel[]
 }
 
 model Server {
-  id        String    @id @default(cuid())
-  name      String
-  channels  Channel[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String  @id @default(uuid())
+  name       String
+  imageURL   String? @db.Text // Added imageURL field
+  inviteCode String  @db.Text // Added inviteCode field
+  profileId  String
+  profile    Profile @relation(fields: [profileId], references: [id], onDelete: Cascade) // Changed relation to Profile
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  Member[] // Changed from Member to members
+  channels Channel[] // Changed from Channel to channels
+
+  @@index([profileId]) // Index on profileId for optimization
+}
+
+model Member {
+  id        String     @id @default(uuid())
+  role      MemberRole @default(GUEST)
+  profileId String
+  profile   Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  serverId  String
+  server    Server     @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId]) // Index on profileId for optimization
+  @@index([serverId]) // Index on serverId for optimization
 }
 
 model Channel {
-  id        String    @id @default(cuid())
+  id        String      @id @default(uuid())
   name      String
-  isPrivate Boolean   @default(false)
-  serverId  String?
-  server    Server?   @relation(fields: [serverId], references: [id])
+  type      ChannelType @default(TEXT) // Added type field
+  profileId String
+  profile   Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  serverId  String
+  server    Server      @relation(fields: [serverId], references: [id], onDelete: Cascade)
   messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId]) // Index on profileId for optimization
+  @@index([serverId]) // Index on serverId for optimization
 }
 
 model Message {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   content   String
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
   channelId String
-  channel   Channel  @relation(fields: [channelId], references: [id])
+  channel   Channel @relation(fields: [channelId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -92,4 +154,18 @@ model Settings {
   country     String
   language    String
   about       String
+}
+
+model Friend {
+  id       String @id @default(cuid())
+  userId   String
+  friendId String
+
+  user   User @relation("UserFriends", fields: [userId], references: [id]) // Defines relation with User model for userId
+  friend User @relation("UserFriendOf", fields: [friendId], references: [id]) // Defines relation with User model for friendId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, friendId]) // Ensures each pair of userId and friendId is unique
 }

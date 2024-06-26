@@ -1,21 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
+import { db as prisma } from '@/lib/db';
+import { currentProfile } from '@/lib/current-profile';
 
-const prisma = new PrismaClient();
-
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, res: NextResponse) {
+  console.log('Outside try block..')
   try {
-    const { id, name } = await request.json();
+    
+    const { name, imageUrl } = await request.json();
+    const profile = await currentProfile();
+    console.log('testing.')
 
-    // Validate that id and name are provided
-    if (!id || !name) {
-      return NextResponse.json({ error: 'ID and Name are required' }, { status: 400 });
+    if (!profile) {
+      
+      return new NextResponse('Unauthorized', { status: 401 });
     }
+
+    if (!name) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    }
+
+    console.log(profile.id);
 
     const newServer = await prisma.server.create({
       data: {
-        id,
+        profileId: profile.id,
         name,
+        imageURL: imageUrl || '',
+        inviteCode: uuidv4(),
+        channels: { 
+          create: {
+            name: 'general',
+            type: 'TEXT',
+            profileId: profile.id,
+          }
+        },
       },
     });
 
