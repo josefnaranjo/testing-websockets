@@ -32,12 +32,15 @@ model User {
   image         String?
   password      String?
   role          UserRole  @default(USER)
+  imgURL        String?   @db.Text // Moved from Profile
+  settings      Settings?
   accounts      Account[]
   messages      Message[]
-  settings      Settings?
-  profile       Profile? // Changed to optional relation to Profile
-  friends       Friend[]  @relation("UserFriends") // Added relation to Friend
-  friendOf      Friend[]  @relation("UserFriendOf") // Added inverse relation to Friend
+  servers       Server[]  // Added relation to Server
+  members       Member[]  // Added relation to Member
+  channels      Channel[] // Added relation to Channel
+  friends       Friend[]  @relation("UserFriends")
+  friendOf      Friend[]  @relation("UserFriendOf")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -58,74 +61,58 @@ model Account {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) // Defines relation with User model
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([provider, providerAccountId]) // Composite primary key
-}
-
-model Profile {
-  id     String @id @default(uuid())
-  userId String @unique
-  name   String
-  imgURL String @db.Text
-  email  String @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade) // Defines relation with User model
-  servers  Server[]
-  members  Member[]
-  channels Channel[]
+  @@id([provider, providerAccountId])
 }
 
 model Server {
   id         String  @id @default(uuid())
   name       String
-  imageURL   String? @db.Text // Added imageURL field
-  inviteCode String  @db.Text // Added inviteCode field
-  profileId  String
-  profile    Profile @relation(fields: [profileId], references: [id], onDelete: Cascade) // Changed relation to Profile
+  imageURL   String? @db.Text
+  inviteCode String  @db.Text
+  userId     String
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members  Member[] // Changed from Member to members
-  channels Channel[] // Changed from Channel to channels
+  members  Member[]
+  channels Channel[]
 
-  @@index([profileId]) // Index on profileId for optimization
+  @@index([userId])
 }
 
 model Member {
-  id        String     @id @default(uuid())
-  role      MemberRole @default(GUEST)
-  profileId String
-  profile   Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  serverId  String
-  server    Server     @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  id       String     @id @default(uuid())
+  role     MemberRole @default(GUEST)
+  userId   String
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serverId String
+  server   Server     @relation(fields: [serverId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([profileId]) // Index on profileId for optimization
-  @@index([serverId]) // Index on serverId for optimization
+  @@index([userId])
+  @@index([serverId])
 }
 
 model Channel {
-  id        String      @id @default(uuid())
-  name      String
-  type      ChannelType @default(TEXT) // Added type field
-  profileId String
-  profile   Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  serverId  String
-  server    Server      @relation(fields: [serverId], references: [id], onDelete: Cascade)
-  messages  Message[]
+  id       String      @id @default(uuid())
+  name     String
+  type     ChannelType @default(TEXT)
+  userId   String
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serverId String
+  server   Server      @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  messages Message[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([profileId]) // Index on profileId for optimization
-  @@index([serverId]) // Index on serverId for optimization
+  @@index([userId])
+  @@index([serverId])
 }
 
 model Message {
@@ -161,11 +148,11 @@ model Friend {
   userId   String
   friendId String
 
-  user   User @relation("UserFriends", fields: [userId], references: [id]) // Defines relation with User model for userId
-  friend User @relation("UserFriendOf", fields: [friendId], references: [id]) // Defines relation with User model for friendId
+  user   User @relation("UserFriends", fields: [userId], references: [id])
+  friend User @relation("UserFriendOf", fields: [friendId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
-  @@unique([userId, friendId]) // Ensures each pair of userId and friendId is unique
+  @@unique([userId, friendId])
 }

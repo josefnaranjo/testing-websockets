@@ -1,21 +1,18 @@
-import { getSession } from 'next-auth/react';
-import { db } from '@/lib/db';
-
+import { db } from "@/lib/db";
+import { auth } from "@/auth";
 
 export const currentProfile = async () => {
-  const session = await getSession();
+  const session = await auth();
 
   console.log(session);
 
   if (!session || !session.user?.id) {
-    console.error('No session or session.user.id found');
+    console.error("No session or session.user.id found");
     return null;
   }
 
-  const profile = await db.profile.findUnique({
-    where: {
-      userId: session.user.id as string, // Ensure userId is treated as a string
-    },
+  const profile = await db.user.findUnique({
+    where: { id: session.user.id },
   });
 
   return profile;
