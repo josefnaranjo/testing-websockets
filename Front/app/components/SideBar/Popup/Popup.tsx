@@ -12,6 +12,7 @@ interface PopupProps {
   setNewServerName: (name: string) => void;
   handleEditServerName: () => void;
   position: { x: number; y: number };
+  inviteCode: string; // invite code to retrieve
   ref?: RefObject<HTMLDivElement>; // Added the ref property to the interface
 }
 
@@ -28,6 +29,7 @@ const Popup = ({
   setNewServerName,
   handleEditServerName,
   position,
+  inviteCode, // invite code to retrieve
   ref, // Added ref to the destructured props
 }: PopupProps) => {
   const popupRef = useRef<HTMLDivElement>(null);
@@ -53,6 +55,15 @@ const Popup = ({
       );
     };
   }, [onClose]);
+
+  const handleCopyInviteCode = async () => { // alerts the user through website alert that the code was copied (needs to work though)
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      alert('Invite code copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy invite code: ', err);
+    }
+  };
 
   return (
     <div
@@ -84,7 +95,9 @@ const Popup = ({
           </li>
         )}
         <Divider />
-        <li className="popup-item">Invite Member to {server}</li>
+        <li className="popup-item" onClick={handleCopyInviteCode}> {/* onClick should trigger the invite code retrieval */}
+          Invite Friend to {server}
+        </li>
         <Divider />
         <li className="popup-item">Edit Member of {server}</li>
         <Divider />

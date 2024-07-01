@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { FaCamera } from 'react-icons/fa';
 import './AddPopup.css';
 
 interface AddPopupProps {
@@ -11,8 +10,11 @@ const offsetX = 40;
 const offsetY = -60;
 
 const AddPopup = ({ onClose, position }: AddPopupProps) => {
-    const [channelId, setServerId] = useState('');
-    const [channelName, setServerName] = useState('');
+    const [inviteCode, setInviteCode] = useState("");
+    const [message, setMessage] = useState("");
+    const [serverName, setServerName] = useState('');
+    const [showInviteCodeInput, setShowInviteCodeInput] = useState(false);
+
     const stopPropagation = (event: React.MouseEvent) => {
         event.stopPropagation();
     };
@@ -25,8 +27,7 @@ const AddPopup = ({ onClose, position }: AddPopupProps) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    id: channelId,
-                    name: channelName,
+                    name: serverName,
                 }),
             });
 
@@ -43,36 +44,68 @@ const AddPopup = ({ onClose, position }: AddPopupProps) => {
         }
     };
 
+    const handleJoinServer = async () => {
+        try {
+            const response = await fetch('/api/userServerActions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ inviteCode }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setMessage(`Error: ${errorData.error}`);
+                return;
+            }
+
+            setMessage('Successfully joined the server!');
+            setInviteCode(''); // Clear the input field
+            window.location.reload(); // Refresh the window
+        } catch (error) {
+            console.error('Failed to join server:', error);
+            setMessage('Failed to join server');
+        }
+    };
+
     return (
         <div
-            className='add-popup'
+            className='add-popup flex flex-col'
             style={{
                 top: position.y + offsetY,
                 left: position.x + offsetX,
-                position: "absolute"
+                position: 'absolute',
             }}
-            onClick={onClose}
         >
             <ul className='add-popup-list flex flex-col items-center'>
                 <li className='font-bold text-green-900 mb-4'>Create a Server</li>
                 <input
                     type='text'
-                    placeholder='Server ID'
-                    className='pl-3 ml-1 rounded-lg text-black mb-4'
-                    onClick={stopPropagation}
-                    value={channelId}
-                    onChange={(e) => setServerId(e.target.value)}
-                />
-                <input
-                    type='text'
                     placeholder='Server Name'
                     className='pl-3 ml-1 rounded-lg text-black'
                     onClick={stopPropagation}
-                    value={channelName}
+                    value={serverName}
                     onChange={(e) => setServerName(e.target.value)}
                 />
                 <button className='add-button' onClick={handleCreateServer}>Create</button>
             </ul>
+            <button className='font-bold text-green-900 mt-2  mb-2 hover:text-white transition-all duration-100 ease-linear'
+            onClick={() => setShowInviteCodeInput(!showInviteCodeInput)}>
+            Have an invite code? Click here</button>
+            {showInviteCodeInput && (
+                <ul className='add-popup-list flex flex-col items-center'>
+                    <input
+                        type='text flex flex-col items-center'
+                        onClick={stopPropagation}
+                        className='pl-3 ml-1 rounded-lg text-black'
+                        value={inviteCode}
+                        onChange={(e) => setInviteCode(e.target.value)}
+                        placeholder='Enter invite code'
+                    />
+                    <button className='add-button mt-2' onClick={handleJoinServer}>Join</button>
+                </ul>
+            )}
         </div>
     );
 };

@@ -1,7 +1,7 @@
-import { db } from "@/lib/db";
 import { auth } from "@/auth";
+import { db } from "@/lib/db";
 
-export const currentProfile = async () => {
+export const currentUser = async () => {
   const session = await auth();
 
   console.log(session);
@@ -11,9 +11,9 @@ export const currentProfile = async () => {
     return null;
   }
 
-  const profile = await db.user.findUnique({
+  const user = await db.user.findUnique({
     where: { id: session.user.id },
   });
 
-  return profile;
+  return user;
 };

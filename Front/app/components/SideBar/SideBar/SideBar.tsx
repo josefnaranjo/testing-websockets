@@ -1,15 +1,16 @@
 import React, { useState, useEffect, MouseEvent } from "react";
-import { GiAmericanFootballBall } from "react-icons/gi";
-import { IoIosAddCircle } from "react-icons/io";
-import { BsGearFill } from "react-icons/bs";
-import { IoSearch } from "react-icons/io5";
+import { IoIosAddCircle } from "react-icons/io"; // Icon for server creating/joining
+import { BsGearFill } from "react-icons/bs"; // Icon for logout and going into account details
+import { IoSearch } from "react-icons/io5"; // Icon to search for other users and add as friends (friend functionality later)
+import "./SideBar.css"; // Styling for the SideBar
+
 import SideBarIcon from "../SideBarIcon/SideBarIcon";
 import Divider from "../Divider/Divider";
 import Popup from "../Popup/Popup";
 import SettingsPopup from "../SettingsPopup/SettingsPopup";
 import AddPopup from "../AddPopup/AddPopup";
 import SearchPopup from "../SearchPopup/SearchPopup";
-import "./SideBar.css";
+
 import { useOutsideClick } from "./useOutsideClick"; // Import the custom hook
 
 interface Server {
@@ -17,6 +18,7 @@ interface Server {
   name: string;
   createdAt: string;
   updatedAt: string;
+  inviteCode?: string;
 }
 
 const SideBar = () => {
@@ -30,6 +32,7 @@ const SideBar = () => {
   const [servers, setServers] = useState<Server[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [newServerName, setNewServerName] = useState("");
+  const [inviteCode, setInviteCode] = useState(""); // New state for invite code, needs to get and set
 
   useEffect(() => {
     const fetchServers = async () => {
@@ -49,7 +52,7 @@ const SideBar = () => {
   }, []);
 
   //Changed from onDoubleClick to onContextMenu aka handIconRightClick
-  const handleIconRightClick = (
+  const handleIconRightClick = async (
     text: string | undefined,
     event: MouseEvent<HTMLDivElement>,
     serverId: string | undefined
@@ -58,6 +61,21 @@ const SideBar = () => {
     if (text && event) {
       setSelectedServer(text);
       setSelectedServerId(serverId || "");
+
+      // Fetch invite code when the popup is opened
+      if (serverId) {
+        try {
+          const response = await fetch(`/api/userServerActions?serverId=${serverId}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch invite code");
+          }
+          const { inviteCode } = await response.json();
+          setInviteCode(inviteCode);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
       const { clientX, clientY } = event;
       setPopupPosition({ x: clientX, y: clientY });
       setPopupVisible(true);
@@ -123,26 +141,27 @@ const SideBar = () => {
 
   const handleLeaveServer = async () => {
     try {
-      const response = await fetch("/api/servers", {
-        method: "DELETE",
+      const response = await fetch('/api/userServerActions', {
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: selectedServerId }),
+        body: JSON.stringify({ serverId: selectedServerId }),
       });
-
+  
       if (response.ok) {
-        console.log("Server deleted successfully");
+        console.log('Successfully left the server');
         setServers((prevServers) =>
           prevServers.filter((server) => server.id !== selectedServerId)
         );
         setPopupVisible(false);
+        window.location.reload(); // Refresh the window
       } else {
         const errorData = await response.json();
-        console.error("Failed to delete server:", errorData);
+        console.error('Failed to leave server:', errorData);
       }
     } catch (error) {
-      console.error("Error deleting server:", error);
+      console.error('Error leaving server:', error);
     }
   };
 
@@ -219,6 +238,7 @@ const SideBar = () => {
           setNewServerName={setNewServerName}
           handleEditServerName={handleEditServerName}
           position={popupPosition}
+          inviteCode={inviteCode}
           ref={popupRef} // Attach the ref to the popup
         />
       )}

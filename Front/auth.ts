@@ -1,7 +1,28 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth from "next-auth";
-import { db } from "@/lib/db";
 import authConfig from "@/auth.config";
+import { getUserById } from "@/data/user";
+import { db } from "@/lib/db";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { UserRole } from "@prisma/client";
+import NextAuth, { type DefaultSession } from "next-auth";
+
+export type ExtendedUser = DefaultSession["user"] & {
+  role: UserRole;
+};
+
+declare module "next-auth" {
+  interface Session {
+    user: ExtendedUser;
+  }
+}
+
+// import { JWT } from "next-auth/jwt";
+// declare module "next-auth/jwt" {
+//   interface JWT {
+//     role?: "ADMIN" | "USER";
+//   }
+// }
+
+// https://next-auth.js.org/v3/configuration/callbackshttps://next-auth.js.org/v3/configuration/callbacks
 
 export const {
   handlers: { GET, POST },
@@ -9,53 +30,47 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
-  ...authConfig,
-  adapter: PrismaAdapter(db),
-  callbacks: {
-    ...authConfig.callbacks,
-    async signIn({ user, account, profile, email, credentials }) {
-      console.log("SignIn Callback: Checking profile creation");
-
-      // Check if a profile exists for the user
-      const existingProfile = await db.profile.findUnique({
-        where: { userId: user.id },
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error",
+  },
+  events: {
+    async linkAccount({ user }) {
+      await db.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
       });
-
-      if (!existingProfile) {
-        console.log(`Creating profile for user ID: ${user.id}`);
-
-        // Ensure userId and email are always strings
-        const userId = user.id || "defaultUserId";
-        const userEmail = user.email || "default@example.com";
-
-        // Create a profile if it does not exist
-        const newProfile = await db.profile.create({
-          data: {
-            userId: userId as string, // Type assertion to ensure userId is string
-            name: user.name || "Default Name",
-            imgURL: user.image || "",
-            email: userEmail as string, // Type assertion to ensure email is string
-          },
-        });
-
-        console.log("New profile created:", newProfile);
-      } else {
-        console.log(`Profile already exists for user ID: ${user.id}`);
-      }
-
-      return true;
     },
-    async session({ session, token, user }) {
-      if (session?.user) {
-        session.user.id = token.sub || '';
+  },
+  callbacks: {
+    async session({ token, session }) {
+      // console.log({
+      //   sessionToken: token,
+      // });
+
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
       }
+
+      if (token.role && session.user) {
+        session.user.role = token.role as UserRole;
+      }
+
       return session;
     },
-    async jwt({ user, token }) {
-      if (user) {
-        token.sub = user.id;
-      }
+    async jwt({ token }) {
+      if (!token.sub) return token;
+
+      const existingUser = await getUserById(token.sub);
+
+      if (!existingUser) return token;
+
+      token.role = existingUser.role;
+
       return token;
     },
   },
+  adapter: PrismaAdapter(db),
+  session: { strategy: "jwt" },
+  ...authConfig,
 });

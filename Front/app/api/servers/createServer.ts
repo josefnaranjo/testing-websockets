@@ -1,18 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
-import { db as prisma } from '@/lib/db';
-import { currentProfile } from '@/lib/current-profile';
+import { currentUser } from "@/lib/current-user";
+import { db as prisma } from "@/lib/db";
+import { MemberRole } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import { v4 as uuidv4 } from "uuid";
 
-export async function POST(request: NextRequest, res: NextResponse) {
-  console.log("Outside try block..");
+export async function POST(request: NextRequest) {
   try {
     const { name, imageUrl } = await request.json();
-    const profile = await currentProfile();
-    console.log("Inside try block.");
-    console.log(profile);
+    const user = await currentUser();
 
-    if (!profile) {
-      console.log("Profile not found. Unauthorized access.");
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -20,40 +17,32 @@ export async function POST(request: NextRequest, res: NextResponse) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    console.log(`Profile ID: ${profile.id}`);
-
-    // Verify profile exists in the database
-    const profileExists = await prisma.profile.findUnique({
-      where: { id: profile.id },
-    });
-
-    if (!profileExists) {
-      console.log(`Profile with ID ${profile.id} does not exist in the database.`);
-      return NextResponse.json({ error: `Profile with ID ${profile.id} does not exist` }, { status: 400 });
-    }
-
-    const newServer = await prisma.server.create({
+    // Create server with the Current User being the Admin of the server (can delete it)
+    const server = await prisma.server.create({
       data: {
-        profileId: profile.id,
+        userId: user.id,
         name,
         imageURL: imageUrl || "",
         inviteCode: uuidv4(),
         channels: {
-          create: {
-            name: "general",
-            type: "TEXT",
-            profileId: profile.id,
-          },
+          create: [
+            {
+              name: "general",
+              type: "TEXT",
+              userId: user.id,
+            },
+          ],
+        },
+        members: {
+          create: [{ userId: user.id, role: MemberRole.ADMIN }],
         },
       },
     });
 
-    console.log("Server created successfully:", newServer);
-    return NextResponse.json(newServer, { status: 201 });
+    return NextResponse.json(server, { status: 201 });
   } catch (error) {
-    console.error("Error creating server:", error);
     return NextResponse.json(
-      { error: "Failed to create server", details: error },
+      { error: "Failed to create server" },
       { status: 500 }
     );
   }

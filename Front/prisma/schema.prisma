@@ -36,8 +36,8 @@ model User {
   settings      Settings?
   accounts      Account[]
   messages      Message[]
-  servers       Server[]  // Added relation to Server
-  members       Member[]  // Added relation to Member
+  servers       Server[] // Added relation to Server
+  members       Member[] // Added relation to Member
   channels      Channel[] // Added relation to Channel
   friends       Friend[]  @relation("UserFriends")
   friendOf      Friend[]  @relation("UserFriendOf")
