@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Create server with the Current User being the Admin of the server (can delete it)
     const server = await prisma.server.create({
       data: {
         userId: user.id,
