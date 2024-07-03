@@ -64,14 +64,25 @@ export async function PUT(req: NextRequest) {
     const userUpdateData: any = {};
     const settingsUpdateData: any = {};
 
+    // Update user fields
     if (userData.image) userUpdateData.image = userData.image;
+
+    // Shared fields to be updated in both User and Settings
+    if (settings.email) {
+      userUpdateData.email = settings.email;
+      settingsUpdateData.email = settings.email;
+    }
+    if (settings.name) {
+      userUpdateData.name = settings.name;
+      settingsUpdateData.name = settings.name;
+    }
+
+    // Update settings-specific fields
     if (settings.about) settingsUpdateData.about = settings.about;
     if (settings.username) settingsUpdateData.username = settings.username;
-    if (settings.name) settingsUpdateData.name = settings.name;
     if (settings.dob) settingsUpdateData.dob = settings.dob;
     if (settings.business) settingsUpdateData.business = settings.business;
     if (settings.memberSince) settingsUpdateData.memberSince = settings.memberSince;
-    if (settings.email) settingsUpdateData.email = settings.email;
     if (settings.phone) settingsUpdateData.phone = settings.phone;
     if (settings.country) settingsUpdateData.country = settings.country;
     if (settings.language) settingsUpdateData.language = settings.language;
@@ -86,9 +97,22 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    const updatedSettings = await prisma.settings.update({
+    const updatedSettings = await prisma.settings.upsert({
       where: { userId: userId },
-      data: settingsUpdateData,
+      update: settingsUpdateData,
+      create: {
+        userId: userId,
+        username: settings.username || '',
+        name: settings.name || '',
+        dob: settings.dob || '',
+        business: settings.business || '',
+        memberSince: settings.memberSince || '',
+        email: settings.email || '',
+        phone: settings.phone || '',
+        country: settings.country || '',
+        language: settings.language || '',
+        about: settings.about || '',
+      },
     });
 
     const updatedUser = await prisma.user.findUnique({
@@ -96,6 +120,7 @@ export async function PUT(req: NextRequest) {
       select: {
         id: true,
         email: true,
+        name: true,
         image: true,
         settings: {
           select: {
