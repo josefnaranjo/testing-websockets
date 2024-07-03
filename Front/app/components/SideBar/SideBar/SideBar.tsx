@@ -208,10 +208,6 @@ const SideBar = () => {
   // Use the custom hook for outside click detection
   const popupRef = useOutsideClick(() => setPopupVisible(false));
 
-  const handleAccountDetails = () => {
-    window.location.href = "/settings"; // Navigate to the settings page
-  };
-
   return (
     <div className="top-0 left-0 h-full w-[72px] m-0 flex flex-col text-white shadow-lg sidebar-container">
       <SideBarIcon
@@ -260,7 +256,6 @@ const SideBar = () => {
         <SettingsPopup
           onAccountDetails={handleAccountDetails} // Add the navigation handler
           onClose={handleCloseSettingsPopup}
-          onAccountDetails={handleAccountDetails} // Add the navigation handler
           position={popupPosition}
         />
       )}
