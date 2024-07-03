@@ -1,7 +1,7 @@
 import React, { useState, useEffect, MouseEvent } from "react";
 import { IoIosAddCircle } from "react-icons/io"; // Icon for server creating/joining
 import { BsGearFill } from "react-icons/bs"; // Icon for logout and going into account details
-import { IoSearch } from "react-icons/io5"; // Icon to search for other users and add as friends (friend functionality later)
+import { IoPersonAdd } from "react-icons/io5";
 import "./SideBar.css"; // Styling for the SideBar
 
 import SideBarIcon from "../SideBarIcon/SideBarIcon";
@@ -9,7 +9,7 @@ import Divider from "../Divider/Divider";
 import Popup from "../Popup/Popup";
 import SettingsPopup from "../SettingsPopup/SettingsPopup";
 import AddPopup from "../AddPopup/AddPopup";
-import SearchPopup from "../SearchPopup/SearchPopup";
+import FriendPopup from "../FriendPopup/FriendPopup";
 
 import { useOutsideClick } from "./useOutsideClick"; // Import the custom hook
 
@@ -22,18 +22,27 @@ interface Server {
 }
 
 const SideBar = () => {
+
+  // Deals with everything on servers
   const [selectedServer, setSelectedServer] = useState("");
-  const [selectedServerId, setSelectedServerId] = useState("");
-  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
-  const [popupVisible, setPopupVisible] = useState(false);
-  const [settingsPopupVisible, setSettingsPopupVisible] = useState(false);
-  const [addPopupVisible, setAddPopupVisible] = useState(false);
-  const [searchPopupVisible, setSearchPopupVisible] = useState(false);
+  const [selectedServerId, setSelectedServerId] = useState(""); 
   const [servers, setServers] = useState<Server[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [newServerName, setNewServerName] = useState("");
   const [inviteCode, setInviteCode] = useState(""); // New state for invite code, needs to get and set
 
+  // Position, Visibility of PopUps
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
+  const [popupVisible, setPopupVisible] = useState(false);
+
+  // Visibility of PopUps
+  const [settingsPopupVisible, setSettingsPopupVisible] = useState(false);
+  const [addPopupVisible, setAddPopupVisible] = useState(false);
+  const [friendPopupVisible, setFriendPopupVisible] = useState(false);
+
+
+
+  // Gets servers for current user
   useEffect(() => {
     const fetchServers = async () => {
       try {
@@ -62,7 +71,7 @@ const SideBar = () => {
       setSelectedServer(text);
       setSelectedServerId(serverId || "");
 
-      // Fetch invite code when the popup is opened
+      // Fetch invite code when the popup is opened through the right click
       if (serverId) {
         try {
           const response = await fetch(`/api/userServerActions?serverId=${serverId}`);
@@ -81,7 +90,7 @@ const SideBar = () => {
       setPopupVisible(true);
       setSettingsPopupVisible(false);
       setAddPopupVisible(false);
-      setSearchPopupVisible(false);
+      setFriendPopupVisible(false);
       setIsEditing(false); // Reset edit mode when switching servers
     }
   };
@@ -102,7 +111,7 @@ const SideBar = () => {
       setSettingsPopupVisible((prev) => !prev);
       setPopupVisible(false);
       setAddPopupVisible(false);
-      setSearchPopupVisible(false);
+      setFriendPopupVisible(false);
     }
   };
 
@@ -116,18 +125,18 @@ const SideBar = () => {
       setAddPopupVisible((prev) => !prev);
       setSettingsPopupVisible(false);
       setPopupVisible(false);
-      setSearchPopupVisible(false);
+      setFriendPopupVisible(false);
     }
   };
 
-  const handleSearchClick = (
+  const handleFriendClick = (
     text?: string,
     event?: MouseEvent<HTMLDivElement>
   ) => {
     if (event) {
       const { clientX, clientY } = event;
       setPopupPosition({ x: clientX, y: clientY });
-      setSearchPopupVisible((prev) => !prev);
+      setFriendPopupVisible((prev) => !prev);
       setAddPopupVisible(false);
       setSettingsPopupVisible(false);
       setPopupVisible(false);
@@ -137,7 +146,7 @@ const SideBar = () => {
   const handleClosePopup = () => setPopupVisible(false);
   const handleCloseSettingsPopup = () => setSettingsPopupVisible(false);
   const handleCloseAddPopup = () => setAddPopupVisible(false);
-  const handleCloseSearchPopup = () => setSearchPopupVisible(false);
+  const handleCloseFriendPopup = () => setFriendPopupVisible(false);
 
   const handleLeaveServer = async () => {
     try {
@@ -201,9 +210,9 @@ const SideBar = () => {
   return (
     <div className="top-0 left-0 h-full w-[72px] m-0 flex flex-col text-white shadow-lg sidebar-container">
       <SideBarIcon
-        icon={<IoSearch size={"35px"} />}
-        text="Search"
-        onClick={handleSearchClick}
+        icon={<IoPersonAdd size={"30px"} />}
+        text="Friends"
+        onClick={handleFriendClick}
       />
       <SideBarIcon
         icon={<IoIosAddCircle size={"40px"} />}
@@ -251,9 +260,9 @@ const SideBar = () => {
       {addPopupVisible && (
         <AddPopup onClose={handleCloseAddPopup} position={popupPosition} />
       )}
-      {searchPopupVisible && (
-        <SearchPopup
-          onClose={handleCloseSearchPopup}
+      {friendPopupVisible && (
+        <FriendPopup
+          onClose={handleCloseFriendPopup}
           position={popupPosition}
         />
       )}
