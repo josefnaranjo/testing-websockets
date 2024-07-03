@@ -16,8 +16,9 @@ export async function GET() {
       where: { id: userId },
       select: {
         id: true,
-        email: true,
+        email: true, // Ensure email is included
         image: true,
+        createdAt: true,
         settings: {
           select: {
             username: true,
@@ -25,7 +26,7 @@ export async function GET() {
             dob: true,
             business: true,
             memberSince: true,
-            email: true,
+            email: true, // Include settings email
             phone: true,
             country: true,
             language: true,
@@ -38,6 +39,24 @@ export async function GET() {
     if (!userData) {
       console.log('User not found for ID:', userId);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Ensure settings is not null
+    if (userData.settings === null) {
+      userData.settings = {
+        username: '',
+        name: '',
+        dob: '',
+        business: '',
+        memberSince: '',
+        email: userData.email || '', // Fallback to main email if settings email is not available
+        phone: '',
+        country: '',
+        language: '',
+        about: '',
+      };
+    } else if (!userData.settings.email) {
+      userData.settings.email = userData.email || '';
     }
 
     console.log('Fetched user data:', userData);
@@ -64,14 +83,25 @@ export async function PUT(req: NextRequest) {
     const userUpdateData: any = {};
     const settingsUpdateData: any = {};
 
+    // Update user fields
     if (userData.image) userUpdateData.image = userData.image;
+
+    // Shared fields to be updated in both User and Settings
+    if (settings.email) {
+      userUpdateData.email = settings.email;
+      settingsUpdateData.email = settings.email;
+    }
+    if (settings.name) {
+      userUpdateData.name = settings.name;
+      settingsUpdateData.name = settings.name;
+    }
+
+    // Update settings-specific fields
     if (settings.about) settingsUpdateData.about = settings.about;
     if (settings.username) settingsUpdateData.username = settings.username;
-    if (settings.name) settingsUpdateData.name = settings.name;
     if (settings.dob) settingsUpdateData.dob = settings.dob;
     if (settings.business) settingsUpdateData.business = settings.business;
     if (settings.memberSince) settingsUpdateData.memberSince = settings.memberSince;
-    if (settings.email) settingsUpdateData.email = settings.email;
     if (settings.phone) settingsUpdateData.phone = settings.phone;
     if (settings.country) settingsUpdateData.country = settings.country;
     if (settings.language) settingsUpdateData.language = settings.language;
@@ -86,9 +116,22 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    const updatedSettings = await prisma.settings.update({
+    const updatedSettings = await prisma.settings.upsert({
       where: { userId: userId },
-      data: settingsUpdateData,
+      update: settingsUpdateData,
+      create: {
+        userId: userId,
+        username: settings.username || '',
+        name: settings.name || '',
+        dob: settings.dob || '',
+        business: settings.business || '',
+        memberSince: settings.memberSince || '',
+        email: settings.email || '',
+        phone: settings.phone || '',
+        country: settings.country || '',
+        language: settings.language || '',
+        about: settings.about || '',
+      },
     });
 
     const updatedUser = await prisma.user.findUnique({
@@ -96,6 +139,7 @@ export async function PUT(req: NextRequest) {
       select: {
         id: true,
         email: true,
+        name: true,
         image: true,
         settings: {
           select: {

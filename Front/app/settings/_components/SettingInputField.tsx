@@ -7,10 +7,11 @@ interface Props {
   name?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string; // Add placeholder prop
+  placeholder?: string;
+  readOnly?: boolean; // Add readOnly prop
 }
 
-const SettingInputField = ({ type, label, value, onChange, name, placeholder }: Props) => {
+const SettingInputField = ({ type, label, value, onChange, name, placeholder, readOnly }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -61,7 +62,8 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder }: 
           name={name}
           value={value || ""}
           onChange={onChange}
-          placeholder={placeholder} // Use placeholder prop
+          placeholder={placeholder}
+          readOnly={readOnly} // Use readOnly prop
           className="bg-transparent text-lg outline-gray-400 font-medium hover:cursor-pointer focus:cursor-default pl-2"
         />
         {type === "password" && (
