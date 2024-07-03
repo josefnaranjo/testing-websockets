@@ -23,3 +23,25 @@
     @apply bg-green-200 text-green-900
     transition-all duration-150 ease-linear
 }
+
+.friend-item {
+    @apply flex justify-between items-center w-full;
+}
+
+.add-friend-button {
+    @apply bg-green-800 px-3 rounded-lg font-bold text-white mt-2
+}
+
+.add-friend-button:hover {
+    @apply bg-green-200 text-green-800
+    transition-all duration-150 ease-linear;
+}
+
+.remove-friend-button {
+    @apply bg-green-800 px-1 ml-4 rounded-lg font-bold text-white
+}
+
+.remove-friend-button:hover {
+    @apply bg-red-500 text-white
+    transition-all duration-150 ease-linear;
+}
