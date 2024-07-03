@@ -22,10 +22,9 @@ interface Server {
 }
 
 const SideBar = () => {
-
   // Deals with everything on servers
   const [selectedServer, setSelectedServer] = useState("");
-  const [selectedServerId, setSelectedServerId] = useState(""); 
+  const [selectedServerId, setSelectedServerId] = useState("");
   const [servers, setServers] = useState<Server[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [newServerName, setNewServerName] = useState("");
@@ -39,8 +38,6 @@ const SideBar = () => {
   const [settingsPopupVisible, setSettingsPopupVisible] = useState(false);
   const [addPopupVisible, setAddPopupVisible] = useState(false);
   const [friendPopupVisible, setFriendPopupVisible] = useState(false);
-
-
 
   // Gets servers for current user
   useEffect(() => {
@@ -157,7 +154,7 @@ const SideBar = () => {
         },
         body: JSON.stringify({ serverId: selectedServerId }),
       });
-  
+
       if (response.ok) {
         console.log('Successfully left the server');
         setServers((prevServers) =>
@@ -207,6 +204,10 @@ const SideBar = () => {
   // Use the custom hook for outside click detection
   const popupRef = useOutsideClick(() => setPopupVisible(false));
 
+  const handleAccountDetails = () => {
+    window.location.href = "/settings"; // Navigate to the settings page
+  };
+
   return (
     <div className="top-0 left-0 h-full w-[72px] m-0 flex flex-col text-white shadow-lg sidebar-container">
       <SideBarIcon
@@ -254,6 +255,7 @@ const SideBar = () => {
       {settingsPopupVisible && (
         <SettingsPopup
           onClose={handleCloseSettingsPopup}
+          onAccountDetails={handleAccountDetails} // Add the navigation handler
           position={popupPosition}
         />
       )}

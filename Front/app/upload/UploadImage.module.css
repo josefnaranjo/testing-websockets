@@ -1,6 +1,13 @@
-.mainContainer {
-  @apply flex flex-col px-20 pt-12 pb-20 rounded-sm border border-green-400 border-solid shadow-sm bg-green-200 max-w-[550px] max-md:px-5 
+.container {
+  @apply fixed top-1/2 left-1/2 
+  transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-400
+  p-6 rounded-xl w-full max-w-md;
 }
+
+.mainContainer {
+  @apply p-5 flex flex-col items-center bg-green-400;
+}
+
 .zoomButtonsArea {
   @apply flex flex-col items-center justify-center bg-green-200 ml-3
 }
@@ -19,15 +26,6 @@
 .changeAvatar {
   @apply justify-center self-center px-5 py-4 mt-14 mb-2 text-base text-black hover:text-white bg-green-600 rounded-md max-md:pr-5 max-md:mt-10 hover:bg-green-700 hover:shadow-md
 }
-
-
-.container {
-  display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
   
   .card {
     display: flex;

@@ -6,13 +6,14 @@ import './SettingsPopup.css';
 
 interface SettingsPopupProps {
     onClose: () => void;
+    onAccountDetails: () => void; // Add the onAccountDetails prop
     position: { x: number; y: number };
 }
 
 const offsetX = 40;
 const offsetY = -60;
 
-const SettingsPopup = ({ onClose, position }: SettingsPopupProps) => (
+const SettingsPopup = ({ onClose, onAccountDetails, position }: SettingsPopupProps) => (
     <div
         className="popup"
         style={{
@@ -23,7 +24,13 @@ const SettingsPopup = ({ onClose, position }: SettingsPopupProps) => (
         onClick={onClose}
     >
         <ul className="popup-list flex flex-col">
-            <li className="popup-item flex justify-between w-auto">
+            <li
+                className="popup-item flex justify-between w-auto"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onAccountDetails();
+                }}
+            >
                 Account Details
                 <FaExternalLinkAlt className="flex align-middle h-[10px]"/>
             </li>
