@@ -7,7 +7,7 @@ interface Props {
   name?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string; // Add placeholder prop
+  placeholder?: string;
 }
 
 const SettingInputField = ({ type, label, value, onChange, name, placeholder }: Props) => {
@@ -23,7 +23,7 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder }: 
       span.style.height = "auto";
       span.style.width = "auto";
       span.style.whiteSpace = "nowrap";
-      span.textContent = value;
+      span.textContent = value || placeholder || '';
 
       // Copy font styles from input to span
       const computedStyle = window.getComputedStyle(inputRef.current);
@@ -40,7 +40,7 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder }: 
     }
   };
 
-  // Adjust input width on initial render
+  // Adjust input width on initial render and when value changes
   useEffect(() => {
     adjustInputWidth();
   }, [value]);
@@ -61,7 +61,7 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder }: 
           name={name}
           value={value || ""}
           onChange={onChange}
-          placeholder={placeholder} // Use placeholder prop
+          placeholder={placeholder}
           className="bg-transparent text-lg outline-gray-400 font-medium hover:cursor-pointer focus:cursor-default pl-2"
         />
         {type === "password" && (
