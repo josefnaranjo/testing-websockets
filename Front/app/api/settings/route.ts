@@ -16,7 +16,7 @@ export async function GET() {
       where: { id: userId },
       select: {
         id: true,
-        email: true,
+        email: true, // Ensure email is included
         image: true,
         settings: {
           select: {
@@ -25,7 +25,7 @@ export async function GET() {
             dob: true,
             business: true,
             memberSince: true,
-            email: true,
+            email: true, // Include settings email
             phone: true,
             country: true,
             language: true,
@@ -38,6 +38,24 @@ export async function GET() {
     if (!userData) {
       console.log('User not found for ID:', userId);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Ensure settings is not null
+    if (userData.settings === null) {
+      userData.settings = {
+        username: '',
+        name: '',
+        dob: '',
+        business: '',
+        memberSince: '',
+        email: userData.email || '', // Fallback to main email if settings email is not available
+        phone: '',
+        country: '',
+        language: '',
+        about: '',
+      };
+    } else if (!userData.settings.email) {
+      userData.settings.email = userData.email || '';
     }
 
     console.log('Fetched user data:', userData);
