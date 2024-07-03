@@ -90,7 +90,7 @@ const AddPopup = ({ onClose, position }: AddPopupProps) => {
                 />
                 <button className='add-button' onClick={handleCreateServer}>Create</button>
             </ul>
-            <button className='font-bold text-green-900 mt-2  mb-2 hover:text-white transition-all duration-100 ease-linear'
+            <button className='font-bold text-green-900 mt-2  mb-2 hover:text-green-200 transition-all duration-100 ease-linear'
             onClick={() => setShowInviteCodeInput(!showInviteCodeInput)}>
             Have an invite code? Click here</button>
             {showInviteCodeInput && (

@@ -140,6 +140,10 @@ const SideBar = () => {
     }
   };
 
+  const handleAccountDetails = () => {
+    window.location.href = "/settings"; // Navigate to the settings page
+  };
+
   const handleClosePopup = () => setPopupVisible(false);
   const handleCloseSettingsPopup = () => setSettingsPopupVisible(false);
   const handleCloseAddPopup = () => setAddPopupVisible(false);
@@ -254,6 +258,7 @@ const SideBar = () => {
       )}
       {settingsPopupVisible && (
         <SettingsPopup
+          onAccountDetails={handleAccountDetails} // Add the navigation handler
           onClose={handleCloseSettingsPopup}
           onAccountDetails={handleAccountDetails} // Add the navigation handler
           position={popupPosition}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Divider from '../Divider/Divider';
 import '../Popup/Popup.css';
 import './FriendPopup.css';
 
@@ -26,6 +27,7 @@ const FriendPopup = ({ onClose, position }: FriendPopupProps) => {
                 const response = await fetch('/api/friendActions'); // Adjust the endpoint as needed
                 const data = await response.json();
                 setFriends(data);
+                console.log(data);
             } catch (error) {
                 console.error('Error fetching friends:', error);
             }
@@ -92,7 +94,7 @@ const FriendPopup = ({ onClose, position }: FriendPopupProps) => {
             onClick={onClose}
         >
             <div onClick={stopPropagation} className="flex flex-col items-center">
-                <span className="heading-text">Add a Friend</span>
+                <span className="heading-text select-none">Add a Friend</span>
                 <input
                     className="input-field"
                     type="text"
@@ -101,17 +103,24 @@ const FriendPopup = ({ onClose, position }: FriendPopupProps) => {
                     onChange={(e) => setFriendId(e.target.value)}
                     onClick={stopPropagation}
                 />
-                <button className="add-friend-button" onClick={handleAddFriend}>Add Friend</button>
+                <button className="add-friend-button" onClick={handleAddFriend}>Add</button>
                 <div className="friends-list font-bold text-green-900">
-                    <h3>Your Friends</h3>
-                    {friends.map((friend) => (
-                        <div key={friend.id} className="friend-item flex items-center">
-                            <span>(ID: {friend.id})</span>
-                            <button className="remove-friend-button ml-2" onClick={() => handleRemoveFriend(friend.id)}>
-                                Remove
-                            </button>
-                        </div>
-                    ))}
+                    {friends.length === 0 ? (
+                        <h3>No friends, yet</h3>
+                    ) : (
+                        <>
+                            <h3 className='flex justify-center mt-3 select-none'>Your Friends</h3>
+                            <Divider />
+                            {friends.map((friend) => (
+                                <div key={friend.id} className="friend-item flex items-center mt-1 select-none">
+                                    <span>{friend.name ? friend.name : `(ID: ${friend.id})`}</span>
+                                    <button className="remove-friend-button" onClick={() => handleRemoveFriend(friend.id)}>
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                        </>
+                    )}
                 </div>
             </div>
         </div>
