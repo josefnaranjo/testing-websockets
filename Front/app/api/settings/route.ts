@@ -18,6 +18,7 @@ export async function GET() {
         id: true,
         email: true, // Ensure email is included
         image: true,
+        createdAt: true,
         settings: {
           select: {
             username: true,

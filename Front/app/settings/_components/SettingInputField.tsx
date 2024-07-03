@@ -8,9 +8,10 @@ interface Props {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
+  readOnly?: boolean; // Add readOnly prop
 }
 
-const SettingInputField = ({ type, label, value, onChange, name, placeholder }: Props) => {
+const SettingInputField = ({ type, label, value, onChange, name, placeholder, readOnly }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -23,7 +24,7 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder }: 
       span.style.height = "auto";
       span.style.width = "auto";
       span.style.whiteSpace = "nowrap";
-      span.textContent = value || placeholder || '';
+      span.textContent = value;
 
       // Copy font styles from input to span
       const computedStyle = window.getComputedStyle(inputRef.current);
@@ -40,7 +41,7 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder }: 
     }
   };
 
-  // Adjust input width on initial render and when value changes
+  // Adjust input width on initial render
   useEffect(() => {
     adjustInputWidth();
   }, [value]);
@@ -62,6 +63,7 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder }: 
           value={value || ""}
           onChange={onChange}
           placeholder={placeholder}
+          readOnly={readOnly} // Use readOnly prop
           className="bg-transparent text-lg outline-gray-400 font-medium hover:cursor-pointer focus:cursor-default pl-2"
         />
         {type === "password" && (

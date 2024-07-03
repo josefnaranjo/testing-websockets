@@ -18,8 +18,33 @@ const AccountSettings: React.FC = () => {
     try {
       const response = await axios.get("/api/settings");
       console.log("Fetched settings data:", response.data);
-      setSettingsData(response.data);
-      setOriginalData(response.data);
+
+      // Ensure createdAt is a valid date
+      const createdAt = new Date(response.data.createdAt);
+      const isValidDate = !isNaN(createdAt.getTime());
+
+      const formattedDate = isValidDate
+        ? `${createdAt.getFullYear()}-${(createdAt.getMonth() + 1)
+            .toString()
+            .padStart(2, '0')}-${createdAt.getDate().toString().padStart(2, '0')}`
+        : '';
+
+      console.log("Formatted createdAt:", formattedDate);
+
+      setSettingsData({
+        ...response.data,
+        settings: {
+          ...response.data.settings,
+          memberSince: formattedDate,
+        },
+      });
+      setOriginalData({
+        ...response.data,
+        settings: {
+          ...response.data.settings,
+          memberSince: formattedDate,
+        },
+      });
     } catch (error) {
       console.error("Error fetching settings data:", error);
     } finally {
@@ -185,12 +210,13 @@ const AccountSettings: React.FC = () => {
               value={settingsData?.settings?.memberSince || ""}
               onChange={(e) => handleInputChange("memberSince", e.target.value)}
               placeholder="Member Since"
+              readOnly // Add readOnly attribute to make the field not editable
             />
 
             <SettingInputField
               label="Email"
               type="text"
-              value={settingsData?.settings?.email || ""}
+              value={settingsData?.email || settingsData?.settings?.email || ""}
               onChange={(e) => handleInputChange("email", e.target.value)}
               placeholder="Email"
             />
