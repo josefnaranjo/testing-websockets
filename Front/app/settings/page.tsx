@@ -4,9 +4,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ImageUpload from "../upload/page";
 import { IoPersonCircleOutline } from "react-icons/io5";
+import { TfiHome } from "react-icons/tfi";
 import SectionHeading from "./_components/SectionHeading";
 import SettingInputField from "./_components/SettingInputField";
 import Image from "next/image";
+import styles from "./AccountSettings.module.css";
 
 const AccountSettings: React.FC = () => {
   const [settingsData, setSettingsData] = useState<any>(null); // State variable to store settings data
@@ -26,8 +28,11 @@ const AccountSettings: React.FC = () => {
       const formattedDate = isValidDate
         ? `${createdAt.getFullYear()}-${(createdAt.getMonth() + 1)
             .toString()
-            .padStart(2, '0')}-${createdAt.getDate().toString().padStart(2, '0')}`
-        : '';
+            .padStart(2, "0")}-${createdAt
+            .getDate()
+            .toString()
+            .padStart(2, "0")}`
+        : "";
 
       console.log("Formatted createdAt:", formattedDate);
 
@@ -71,7 +76,10 @@ const AccountSettings: React.FC = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setSettingsData({ ...settingsData, settings: { ...settingsData.settings, [field]: value } });
+    setSettingsData({
+      ...settingsData,
+      settings: { ...settingsData.settings, [field]: value },
+    });
   };
 
   const handleOverlayClick = (
@@ -87,14 +95,15 @@ const AccountSettings: React.FC = () => {
     setShowImageUpload(false);
   };
 
-  const hasChanges = JSON.stringify(settingsData) !== JSON.stringify(originalData);
+  const hasChanges =
+    JSON.stringify(settingsData) !== JSON.stringify(originalData);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="flex min-h-screen justify-center items-center bg-green-100">
+    <div className="flex flex-col min-h-screen justify-center items-center bg-green-100">
       <div className="flex flex-col justify-center items-center border-4 px-7 py-6 rounded-lg border-green-700 bg-gradient-to-tl from-green-200 to-green-300 shadow-xl">
         <div className="flex flex-col sm:flex-row space-x-2">
           <div className="flex flex-col w-[19rem]">
@@ -247,6 +256,19 @@ const AccountSettings: React.FC = () => {
             </button>
           </div>
         )}
+      </div>
+      <div className="flex flex-col items-center mt-4 group relative">
+        <TfiHome
+          className="w-10 h-10 text-green-900 hover:text-green-600 cursor-pointer"
+          onClick={() => {
+            window.location.href = "/";
+          }}
+        />
+        <span
+          className={`absolute left-12 top-0 mt-1 py-1 px-2 text-white bg-black rounded-md opacity-0 group-hover:opacity-100 transition-opacity delay-750 duration-300`}
+        >
+          Home
+        </span>
       </div>
     </div>
   );
