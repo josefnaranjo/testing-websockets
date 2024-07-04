@@ -197,7 +197,7 @@ const AccountSettings: React.FC = () => {
             />
 
             <SettingInputField
-              label="Date of birth"
+              label="Birthdate"
               type="text"
               name="dob"
               value={settingsData?.settings?.dob || ""}
@@ -214,12 +214,12 @@ const AccountSettings: React.FC = () => {
             />
 
             <SettingInputField
-              label="Member Since"
+              label="Joined On"
               type="text"
               value={settingsData?.settings?.memberSince || ""}
               onChange={(e) => handleInputChange("memberSince", e.target.value)}
               placeholder="Member Since"
-              readOnly // Add readOnly attribute to make the field not editable
+              readOnly
             />
 
             <SettingInputField
@@ -228,10 +228,11 @@ const AccountSettings: React.FC = () => {
               value={settingsData?.email || settingsData?.settings?.email || ""}
               onChange={(e) => handleInputChange("email", e.target.value)}
               placeholder="Email"
+              readOnly
             />
 
             <SettingInputField
-              label="Phone Number"
+              label="Phone"
               type="text"
               value={settingsData?.settings?.phone || ""}
               onChange={(e) => handleInputChange("phone", e.target.value)}
