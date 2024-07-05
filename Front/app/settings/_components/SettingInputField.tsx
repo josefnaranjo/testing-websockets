@@ -64,7 +64,7 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder, re
           onChange={onChange}
           placeholder={placeholder}
           readOnly={readOnly} // Use readOnly prop
-          className="bg-transparent text-lg outline-gray-400 font-medium hover:cursor-pointer focus:cursor-default pl-2"
+          className="bg-transparent text-lg outline-gray-400 font-medium hover:cursor-pointer focus:cursor-default pl-2 placeholder-green-600 w-full"
         />
         {type === "password" && (
           <button
