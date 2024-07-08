@@ -24,7 +24,7 @@ const FriendPopup = ({ onClose, position }: FriendPopupProps) => {
         // Fetch the user's friends when the component mounts
         const fetchFriends = async () => {
             try {
-                const response = await fetch('/api/friendActions'); // Adjust the endpoint as needed
+                const response = await fetch('/api/friendActions');
                 const data = await response.json();
                 setFriends(data);
                 console.log(data);
@@ -53,7 +53,8 @@ const FriendPopup = ({ onClose, position }: FriendPopupProps) => {
             const result = await response.json();
             if (response.ok) {
                 alert(result.success);
-                setFriends([...friends, { id: friendId }]); // Optionally update the UI with the new friend
+                setFriends([...friends, { id: friendId }]); // Updates the UI with the new friend, it's only their ID but it still reflects that it went through
+                setFriendId('');
             } else {
                 alert(result.error);
             }
@@ -74,7 +75,7 @@ const FriendPopup = ({ onClose, position }: FriendPopupProps) => {
 
             const result = await response.json();
             if (response.ok) {
-                setFriends(friends.filter((friend) => friend.id !== id)); // Optionally update the UI to remove the friend
+                setFriends(friends.filter((friend) => friend.id !== id)); // Updates the UI to remove the friend
             } else {
                 alert(result.error);
             }
