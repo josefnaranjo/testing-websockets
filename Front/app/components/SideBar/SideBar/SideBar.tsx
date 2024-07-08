@@ -40,8 +40,6 @@ const SideBar = () => {
   const [addPopupVisible, setAddPopupVisible] = useState(false);
   const [friendPopupVisible, setFriendPopupVisible] = useState(false);
 
-
-
   // Gets servers for current user
   useEffect(() => {
     const fetchServers = async () => {
@@ -168,7 +166,6 @@ const SideBar = () => {
           prevServers.filter((server) => server.id !== selectedServerId)
         );
         setPopupVisible(false);
-        window.location.reload(); // Refresh the window
       } else {
         const errorData = await response.json();
         console.error('Failed to leave server:', errorData);
@@ -210,6 +207,14 @@ const SideBar = () => {
 
   // Use the custom hook for outside click detection
   const popupRef = useOutsideClick(() => setPopupVisible(false));
+
+  /* 
+  This updates the UI with the new server whether created or joined, that way we don't have to refresh 
+  and it looks much cleaner than refreshing
+  */
+  const handleServerAdded = (newServer: Server) => {
+    setServers((prevServers) => [...prevServers, newServer]);
+  };
 
   return (
     <div className="top-0 left-0 h-full w-[72px] m-0 flex flex-col text-white shadow-lg sidebar-container">
@@ -263,7 +268,7 @@ const SideBar = () => {
         />
       )}
       {addPopupVisible && (
-        <AddPopup onClose={handleCloseAddPopup} position={popupPosition} />
+        <AddPopup onClose={handleCloseAddPopup} position={popupPosition} onServerAdded={handleServerAdded} />
       )}
       {friendPopupVisible && (
         <FriendPopup

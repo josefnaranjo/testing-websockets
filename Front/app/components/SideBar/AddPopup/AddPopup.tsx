@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import './AddPopup.css';
 
+// Brought this here as well so we dont refresh the page but rather the UI instead
+interface Server {
+    id: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    inviteCode?: string;
+  }
+
 interface AddPopupProps {
     onClose: () => void;
     position: { x: number, y: number };
+    onServerAdded: (newServer: Server) => void; // Callback
 }
 
 const offsetX = 40;
 const offsetY = -60;
 
-const AddPopup = ({ onClose, position }: AddPopupProps) => {
+const AddPopup = ({ onClose, position, onServerAdded  }: AddPopupProps) => {
     const [inviteCode, setInviteCode] = useState("");
     const [message, setMessage] = useState("");
     const [serverName, setServerName] = useState('');
@@ -32,10 +42,10 @@ const AddPopup = ({ onClose, position }: AddPopupProps) => {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                console.log('Server created:', data);
+                const newServer = await response.json();
+                console.log('Server created:', newServer);
+                onServerAdded(newServer); // Call the callback with the new server
                 onClose();
-                window.location.reload();
             } else {
                 console.error('Failed to create server');
             }
@@ -60,9 +70,11 @@ const AddPopup = ({ onClose, position }: AddPopupProps) => {
                 return;
             }
 
+            const joinedServer = await response.json();
             setMessage('Successfully joined the server!');
-            setInviteCode(''); // Clear the input field
-            window.location.reload(); // Refresh the window
+            setInviteCode('');
+            onServerAdded(joinedServer); // Call the callback with the joined server
+            onClose();
         } catch (error) {
             console.error('Failed to join server:', error);
             setMessage('Failed to join server');
