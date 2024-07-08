@@ -51,11 +51,9 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder, re
   };
 
   return (
-    <div className="flex flex-row justify-between items-center whitespace-nowrap my-3 select-none">
-      <h1 className="text-lg font-semibold">{label}</h1>
-      <div className="flex items-center hover:bg-green-300
-                      transition-all duration-100 ease-linear
-                      rounded-md">
+    <div className="flex flex-row justify-between items-center whitespace-nowrap my-3 select-none w-full">
+      <h1 className="text-lg font-semibold" style={{ width: '150px' }}>{label}</h1>
+      <div className="flex items-center w-full">
         <input
           ref={inputRef}
           type={isPasswordVisible ? "text" : type}
@@ -63,8 +61,8 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder, re
           value={value || ""}
           onChange={onChange}
           placeholder={placeholder}
-          readOnly={readOnly} // Use readOnly prop
-          className="bg-transparent text-lg outline-gray-400 font-medium hover:cursor-pointer focus:cursor-default pl-2 placeholder-green-600 w-full"
+          readOnly={readOnly}
+          className="bg-transparent text-lg outline-none font-medium hover:cursor-pointer focus:cursor-default pl-2 placeholder-green-600 w-full hover:bg-green-300 transition-all duration-100 ease-linear rounded-md"
         />
         {type === "password" && (
           <button
