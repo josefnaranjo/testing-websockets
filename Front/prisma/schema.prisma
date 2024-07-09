@@ -12,6 +12,18 @@ enum UserRole {
   USER
 }
 
+enum MemberRole {
+  ADMIN
+  MODERATOR
+  GUEST
+}
+
+enum ChannelType {
+  TEXT
+  AUDIO
+  VOICE
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -20,9 +32,15 @@ model User {
   image         String?
   password      String?
   role          UserRole  @default(USER)
+  imgURL        String?   @db.Text // Moved from Profile
+  settings      Settings?
   accounts      Account[]
   messages      Message[]
-  settings      Settings?
+  servers       Server[]  // Added relation to Server
+  members       Member[]  // Added relation to Member
+  channels      Channel[] // Added relation to Channel
+  friends       Friend[]  @relation("UserFriends")
+  friendOf      Friend[]  @relation("UserFriendOf")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -49,31 +67,62 @@ model Account {
 }
 
 model Server {
-  id        String    @id @default(cuid())
-  name      String
-  channels  Channel[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String  @id @default(uuid())
+  name       String
+  imageURL   String? @db.Text
+  inviteCode String  @db.Text
+  userId     String
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  Member[]
+  channels Channel[]
+
+  @@index([userId])
+}
+
+model Member {
+  id       String     @id @default(uuid())
+  role     MemberRole @default(GUEST)
+  userId   String
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serverId String
+  server   Server     @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([serverId])
 }
 
 model Channel {
-  id        String    @id @default(cuid())
-  name      String
-  isPrivate Boolean   @default(false)
-  serverId  String?
-  server    Server?   @relation(fields: [serverId], references: [id])
-  messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id       String      @id @default(uuid())
+  name     String
+  type     ChannelType @default(TEXT)
+  userId   String
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serverId String
+  server   Server      @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([serverId])
 }
 
 model Message {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   content   String
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
   channelId String
-  channel   Channel  @relation(fields: [channelId], references: [id])
+  channel   Channel @relation(fields: [channelId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -94,4 +143,18 @@ model Settings {
   about       String
 
   @@index([userId])
+}
+
+model Friend {
+  id       String @id @default(cuid())
+  userId   String
+  friendId String
+
+  user   User @relation("UserFriends", fields: [userId], references: [id])
+  friend User @relation("UserFriendOf", fields: [friendId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([userId, friendId])
 }

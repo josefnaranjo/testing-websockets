@@ -8,10 +8,11 @@ import axios from "axios";
 
 interface ImageUploadProps {
   userId: string;
-  onClose: () => void; // Add a callback function to close the modal
+  onClose: () => void;
+  onUpload: (imageUrl: string) => void; // Add onUpload prop
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ userId, onClose }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ userId, onClose, onUpload }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null); // State to handle the message
@@ -48,7 +49,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ userId, onClose }) => {
 
       // Update the user image in the database
       const updateRes = await axios.post("/api/upload", {
-        userId: "clw9s8n6u0001p42u77kw186u", // Use the provided userId prop
+        userId, // Use the provided userId prop
         imageUrl: file.secure_url,
       });
 
@@ -57,6 +58,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ userId, onClose }) => {
       }
 
       setMessage("Profile image updated"); // Set the success message
+      onUpload(file.secure_url); // Call onUpload with the new image URL
       setTimeout(() => {
         onClose(); // Close the modal after 3 seconds
       }, 3000);
@@ -68,7 +70,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ userId, onClose }) => {
   const deleteImage = async () => {
     try {
       const deleteRes = await axios.post("/api/deleteImage", {
-        userId: "clw9s8n6u0001p42u77kw186u",
+        userId,
       });
 
       if (deleteRes.status !== 200) {

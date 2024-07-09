@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@/lib/current-user';
 import prisma from '@/prisma/client';
 
 export async function POST(req: NextRequest) {
   console.log('Delete image request received');  // Log when the request is received
 
   try {
-    const { userId } = await req.json();
-    console.log('Parsed request body:', { userId });  // Log parsed request body
-
-    if (!userId) {
-      console.log('Missing userId');  // Log if userId is missing
-      return NextResponse.json({ message: 'Missing userId' }, { status: 400 });
+    const user = await currentUser();
+    if (!user) {
+      console.log('Unauthorized request');  // Log unauthorized access attempt
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     // Update user image in the database to null
-    const user = await prisma.user.update({
-      where: { id: userId },
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
       data: { image: null },
     });
 
-    console.log('User image deleted:', user);  // Log successful update
+    console.log('User image deleted:', updatedUser);  // Log successful update
 
     return NextResponse.json({ message: 'User image deleted successfully' }, { status: 200 });
   } catch (error) {

@@ -7,9 +7,11 @@ interface Props {
   name?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  readOnly?: boolean; // Add readOnly prop
 }
 
-const SettingInputField = ({ type, label, value, onChange, name }: Props) => {
+const SettingInputField = ({ type, label, value, onChange, name, placeholder, readOnly }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -42,25 +44,25 @@ const SettingInputField = ({ type, label, value, onChange, name }: Props) => {
   // Adjust input width on initial render
   useEffect(() => {
     adjustInputWidth();
-  });
+  }, [value]);
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
   return (
-    <div className="flex flex-row justify-between items-center whitespace-nowrap my-3 select-none">
-      <h1 className="text-lg font-semibold">{label}</h1>
-      <div className="flex items-center hover:bg-green-300
-                      transition-all duration-100 ease-linear
-                      rounded-md">
+    <div className="flex flex-row justify-between items-center whitespace-nowrap my-3 select-none w-full">
+      <h1 className="text-lg font-semibold" style={{ width: '150px' }}>{label}</h1>
+      <div className="flex items-center w-full">
         <input
           ref={inputRef}
           type={isPasswordVisible ? "text" : type}
           name={name}
           value={value || ""}
           onChange={onChange}
-          className="bg-transparent text-lg outline-gray-400 font-medium hover:cursor-pointer focus:cursor-default pl-2"
+          placeholder={placeholder}
+          readOnly={readOnly}
+          className="bg-transparent text-lg outline-none font-medium hover:cursor-pointer focus:cursor-default pl-2 placeholder-green-600 w-full hover:bg-green-300 transition-all duration-100 ease-linear rounded-md"
         />
         {type === "password" && (
           <button
