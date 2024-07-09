@@ -1,5 +1,7 @@
 import React from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaArrowRightToBracket } from "react-icons/fa6";
+
 import { signOut } from 'next-auth/react';
 import Divider from '../Divider/Divider';
 import './SettingsPopup.css';
@@ -32,8 +34,9 @@ const SettingsPopup = ({ onClose, onAccountDetails, position }: SettingsPopupPro
                 }}
             >
                 Account Details
-                <FaExternalLinkAlt className="flex align-middle h-[10px]"/>
+                <FaArrowRightToBracket className="flex align-middle mt-1 ml-4"/>
             </li>
+            
             <Divider />
             <button
                 onClick={async () => await signOut()}
