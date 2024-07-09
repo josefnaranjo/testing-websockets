@@ -3,7 +3,7 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import { BiText } from "react-icons/bi";
 import { FaPlus } from "react-icons/fa";
 import { MdSpatialAudio } from "react-icons/md";
-import './ChannelList.css'
+import './ChannelList.css';
 
 interface Channel {
   id: string;
@@ -21,7 +21,6 @@ const ChannelList: React.FC<ChannelListProps> = ({ channels }) => {
 
   return (
     <div className='channel-list-container h-full'>
-      {/* This is the top bar that shows the current server's name with a button to also access the settings */}
       <div className='server-bar'>
         <div className='server-name font-medium text-4xl w-auto'>Server Name</div>
         <button className='flex justify-center'><RiArrowDropDownLine className='text-4xl' /></button>
@@ -32,7 +31,7 @@ const ChannelList: React.FC<ChannelListProps> = ({ channels }) => {
           <div className='channel-type'>Text Channels</div>
           {textChannels.map(channel => (
             <div key={channel.id} className='channel-item'>
-              <BiText />
+              <BiText className='mr-2' />
               {channel.name}
             </div>
           ))}
@@ -42,7 +41,7 @@ const ChannelList: React.FC<ChannelListProps> = ({ channels }) => {
           <div className='channel-type'>Voice Channels</div>
           {voiceChannels.map(channel => (
             <div key={channel.id} className='channel-item'>
-              <MdSpatialAudio />
+              <MdSpatialAudio className='mr-3' />
               {channel.name}
             </div>
           ))}

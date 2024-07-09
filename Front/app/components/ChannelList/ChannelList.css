@@ -1,23 +1,24 @@
+/* ChannelList.css */
 .server-bar {
-    @apply flex items-center justify-between w-full p-2
-    hover:bg-gray-100
-    transition-all duration-200
-}
-
-.channel-type {
-    @apply font-medium text-xl mb-2 ml-3 
-    transition-all duration-150
-}
-
-.channel-type:hover {
-    @apply text-green-400
-}
-
-.channel-item {
-    @apply ml-6 font-medium
-    transition-all duration-100
-}
-
-.channel-item:hover {
-    @apply text-green-500 bg-gray-100 p-1 rounded-lg pl-4 font-bold 
-}
+    @apply flex items-center justify-between w-full p-2;
+    @apply hover:bg-gray-100 transition-all duration-200;
+  }
+  
+  .channel-type {
+    @apply font-medium text-xl mb-2 ml-3 flex items-center justify-between;
+    @apply transition-all duration-150;
+  }
+  
+  .channel-type:hover {
+    @apply text-green-400;
+  }
+  
+  .channel-item {
+    @apply flex items-center ml-6 font-medium cursor-pointer;
+    @apply transition-all duration-100;
+  }
+  
+  .channel-item:hover {
+    @apply text-green-500 bg-gray-100 p-1 rounded-lg pl-4 font-bold;
+  }
+  
