@@ -15,37 +15,6 @@ const SettingInputField = ({ type, label, value, onChange, name, placeholder, re
   const inputRef = useRef<HTMLInputElement>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  // For adjusting input width based on content
-  const adjustInputWidth = () => {
-    if (inputRef.current) {
-      const span = document.createElement("span");
-      span.style.visibility = "hidden";
-      span.style.position = "absolute";
-      span.style.height = "auto";
-      span.style.width = "auto";
-      span.style.whiteSpace = "nowrap";
-      span.textContent = value;
-
-      // Copy font styles from input to span
-      const computedStyle = window.getComputedStyle(inputRef.current);
-      span.style.fontSize = computedStyle.fontSize;
-      span.style.fontFamily = computedStyle.fontFamily;
-      span.style.fontWeight = computedStyle.fontWeight;
-      span.style.letterSpacing = computedStyle.letterSpacing;
-
-      document.body.appendChild(span);
-      const spanWidth = span.offsetWidth;
-      document.body.removeChild(span);
-
-      inputRef.current.style.width = `${spanWidth + 20}px`; // +20 for padding
-    }
-  };
-
-  // Adjust input width on initial render
-  useEffect(() => {
-    adjustInputWidth();
-  }, [value]);
-
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
