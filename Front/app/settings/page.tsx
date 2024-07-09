@@ -8,7 +8,6 @@ import { TfiHome } from "react-icons/tfi";
 import SectionHeading from "./_components/SectionHeading";
 import SettingInputField from "./_components/SettingInputField";
 import Image from "next/image";
-import styles from "./AccountSettings.module.css";
 
 const AccountSettings: React.FC = () => {
   const [settingsData, setSettingsData] = useState<any>(null); // State variable to store settings data
@@ -99,7 +98,7 @@ const AccountSettings: React.FC = () => {
     JSON.stringify(settingsData) !== JSON.stringify(originalData);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="font-bold text-4xl flex justify-center mt-20">Loading...</div>;
   }
 
   return (

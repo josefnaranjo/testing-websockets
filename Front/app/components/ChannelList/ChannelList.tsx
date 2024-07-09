@@ -115,12 +115,3 @@ const ChannelList: React.FC<ChannelListProps> = ({ serverId }) => {
 };
 
 export default ChannelList;
-
-// // Test Component
-// const TestChannelList = () => {
-//   const serverId = 'adae7667-32a0-4ed8-ab22-2e068b655122'; // Replace with your actual server ID
-
-//   return <ChannelList serverId={serverId} />;
-// };
-
-// export default TestChannelList;
