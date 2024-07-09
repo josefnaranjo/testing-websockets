@@ -1,8 +1,8 @@
 import React, { useState, useEffect, MouseEvent } from "react";
-import { IoIosAddCircle } from "react-icons/io"; // Icon for server creating/joining
-import { BsGearFill } from "react-icons/bs"; // Icon for logout and going into account details
+import { IoIosAddCircle } from "react-icons/io";
+import { BsGearFill } from "react-icons/bs";
 import { IoPersonAdd } from "react-icons/io5";
-import "./SideBar.css"; // Styling for the SideBar
+import "./SideBar.css";
 
 import SideBarIcon from "../SideBarIcon/SideBarIcon";
 import Divider from "../Divider/Divider";
@@ -21,23 +21,21 @@ interface Server {
   inviteCode?: string;
 }
 
-const SideBar = () => {
-  // Deals with everything on servers
-  const [selectedServer, setSelectedServer] = useState("");
-  const [selectedServerId, setSelectedServerId] = useState("");
-  const [servers, setServers] = useState<Server[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [newServerName, setNewServerName] = useState("");
-  const [inviteCode, setInviteCode] = useState(""); // New state for invite code, needs to get and set
+interface SideBarProps {
+  onSelectServer: (serverId: string) => void;
+}
 
-  // Position, Visibility of PopUps
+const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
+  const [servers, setServers] = useState<Server[]>([]);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [popupVisible, setPopupVisible] = useState(false);
-
-  // Visibility of PopUps
   const [settingsPopupVisible, setSettingsPopupVisible] = useState(false);
   const [addPopupVisible, setAddPopupVisible] = useState(false);
   const [friendPopupVisible, setFriendPopupVisible] = useState(false);
+  const [selectedServer, setSelectedServer] = useState<Server | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newServerName, setNewServerName] = useState("");
+  const [inviteCode, setInviteCode] = useState(""); // New state for invite code, needs to get and set
 
   // Gets servers for current user
   useEffect(() => {
@@ -57,7 +55,6 @@ const SideBar = () => {
     fetchServers();
   }, []);
 
-  //Changed from onDoubleClick to onContextMenu aka handIconRightClick
   const handleIconRightClick = async (
     text: string | undefined,
     event: MouseEvent<HTMLDivElement>,
@@ -65,10 +62,9 @@ const SideBar = () => {
   ) => {
     event.preventDefault();
     if (text && event) {
-      setSelectedServer(text);
-      setSelectedServerId(serverId || "");
+      const selectedServer = servers.find((server) => server.id === serverId);
+      setSelectedServer(selectedServer || null);
 
-      // Fetch invite code when the popup is opened through the right click
       if (serverId) {
         try {
           const response = await fetch(`/api/userServerActions?serverId=${serverId}`);
@@ -92,9 +88,21 @@ const SideBar = () => {
     }
   };
 
-  const handleIconClick = () => {
+  const handleIconClick = (serverId: string) => {
+    const selectedServer = servers.find((server) => server.id === serverId);
+    setSelectedServer(selectedServer || null);
+    onSelectServer(serverId);
     if (popupVisible) {
       setPopupVisible(false);
+    }
+    if (settingsPopupVisible) {
+      setSettingsPopupVisible(false);
+    }
+    if (addPopupVisible) {
+      setAddPopupVisible(false);
+    }
+    if (friendPopupVisible) {
+      setFriendPopupVisible(false);
     }
   };
 
@@ -156,15 +164,16 @@ const SideBar = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ serverId: selectedServerId }),
+        body: JSON.stringify({ serverId: selectedServer?.id }),
       });
 
       if (response.ok) {
         console.log('Successfully left the server');
         setServers((prevServers) =>
-          prevServers.filter((server) => server.id !== selectedServerId)
+          prevServers.filter((server) => server.id !== selectedServer?.id)
         );
         setPopupVisible(false);
+        setSelectedServer(null);
       } else {
         const errorData = await response.json();
         console.error('Failed to leave server:', errorData);
@@ -181,14 +190,14 @@ const SideBar = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id: selectedServerId, name: newServerName }),
+        body: JSON.stringify({ id: selectedServer?.id, name: newServerName }),
       });
 
       if (response.ok) {
         console.log("Server name updated successfully");
         setServers((prevServers) =>
           prevServers.map((server) =>
-            server.id === selectedServerId
+            server.id === selectedServer?.id
               ? { ...server, name: newServerName }
               : server
           )
@@ -232,10 +241,10 @@ const SideBar = () => {
         <SideBarIcon
           key={server.id}
           text={server.name}
-          onClick={handleIconClick}
+          onClick={() => handleIconClick(server.id)}
           onContextMenu={(event) =>
             handleIconRightClick(server.name, event, server.id)
-          } // Changed from onDoubleClick to onContextMenu
+          }
         />
       ))}
       <Divider />
@@ -246,7 +255,7 @@ const SideBar = () => {
       />
       {popupVisible && (
         <Popup
-          server={selectedServer}
+          server={selectedServer?.name || ""}
           onClose={handleClosePopup}
           onLeave={handleLeaveServer}
           onEdit={() => setIsEditing(true)}

@@ -4,6 +4,11 @@
     @apply hover:bg-gray-100 transition-all duration-200;
   }
   
+  .server-name {
+    @apply font-medium max-w-72 text-2xl whitespace-nowrap overflow-hidden overflow-ellipsis;
+  }
+
+
   .channel-type {
     @apply font-medium text-xl mb-2 ml-3 flex items-center justify-between;
     @apply transition-all duration-150;

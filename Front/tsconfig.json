@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "public/Icons/Icons.js", "lib/icons.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "public/Icons/Icons.js", "lib/icons.js", "app/api/servers/[serverId]"],
   "exclude": ["node_modules"]
 }
