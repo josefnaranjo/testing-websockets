@@ -26,4 +26,13 @@
   .channel-item:hover {
     @apply text-green-500 bg-gray-100 p-1 rounded-lg pl-4 font-bold;
   }
+
+  .btn-create {
+    @apply bg-green-700 px-2 mt-2 ml-3 rounded-lg font-bold p-1 text-white
+    transition-all duration-150 ease-linear;
+  }
+
+  .btn-create:hover {
+    @apply bg-green-200 text-green-800
+  }
   

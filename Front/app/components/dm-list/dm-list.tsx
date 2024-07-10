@@ -59,8 +59,8 @@ const UserList: React.FC<{ userList: { [key: string]: User } }> = ({
 
   return (
     <div className="list-container">
-      <div className="flex items-center h-[63px] border-b border-gray-400/opacity-25">
-        <h4 className="font-semibold text-3xl pr-[10px] pl-[16px]">Chat</h4>
+      <div className="flex items-center h-[63px] border-b border-gray-400/opacity-25 hover:bg-gray-100">
+        <h4 className="font-semibold text-3xl pr-[10px] pl-[16px] select-none">Direct Messages</h4>
         {/* <FaRegCircle size={25} className="mt-1" /> */}
       </div>
       <ul className="user-list">

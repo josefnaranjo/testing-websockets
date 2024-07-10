@@ -2,6 +2,7 @@ import React, { useState, useEffect, MouseEvent } from "react";
 import { IoIosAddCircle } from "react-icons/io";
 import { BsGearFill } from "react-icons/bs";
 import { IoPersonAdd } from "react-icons/io5";
+import { TbMessageCircle2Filled } from "react-icons/tb"; // New icon to go back into the UserList/DMList component
 import "./SideBar.css";
 
 import SideBarIcon from "../SideBarIcon/SideBarIcon";
@@ -224,8 +225,24 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
     setServers((prevServers) => [...prevServers, newServer]);
   };
 
+  // Clicking on the direct messages icon basically just nulls the selectedServer
+  // this way the DM list is shown, which needs to be updated
+  const handleDirectMessagesClick = () => {
+    setSelectedServer(null); // null
+    onSelectServer(""); // it's a string, so must be blank
+  }
+
   return (
     <div className="top-0 left-0 h-full w-[72px] m-0 flex flex-col text-white shadow-lg sidebar-container">
+      {/* On Server Select, Show the TbMessageCircle2Filled */}
+      {selectedServer &&
+        <SideBarIcon
+        icon={<TbMessageCircle2Filled size={"30px"}/>}  
+        text="Direct Messages"
+        onClick={handleDirectMessagesClick}
+      /> 
+      }
+      
       <SideBarIcon
         icon={<IoPersonAdd size={"30px"} />}
         text="Friends"

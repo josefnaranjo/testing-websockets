@@ -47,7 +47,7 @@ const MessageInput: React.FC<Props> = ({ onSendMessage }) => {
 
   return (
     <div className="input-container">
-      <form className="entry-and-submit" onSubmit={handleSubmit}>
+      <form className="entry-and-submit ml-2" onSubmit={handleSubmit}>
         <textarea
           id="typed-message"
           placeholder="Type Message..."
