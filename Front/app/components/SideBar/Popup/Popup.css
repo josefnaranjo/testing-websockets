@@ -1,21 +1,20 @@
 /*  Following code focuses on the styling for the pop up when the user clicks a channel */
 .popup {
-    @apply flex p-2 m-2 min-w-max mt-12 rounded-md shadow-md
+  @apply flex p-2 m-2 min-w-max mt-12 rounded-md shadow-md
     w-auto bg-green-400 text-white z-10
     border-green-800;
 }
 
-.popup-item{
-    @apply cursor-pointer m-1 p-1 font-bold hover:bg-green-300 hover:rounded-xl text-green-900
-    hover:text-black
+.popup-item {
+  @apply cursor-pointer m-1 p-1 font-bold hover:bg-green-300 hover:rounded-xl text-green-900
     hover:text-black transition-all duration-150 ease-linear;
 }
 
 /* Leave Server button styling */
 .popup-item.leave {
-    @apply flex items-center justify-center bg-red-400 text-center rounded-full w-full h-8;
+  @apply flex items-center justify-center bg-red-400 text-center rounded-full w-full h-8;
 }
 
 .popup-item.leave:hover {
-    @apply bg-red-200 text-black;
+  @apply bg-red-200 text-black;
 }

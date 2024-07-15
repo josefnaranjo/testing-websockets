@@ -37,10 +37,12 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newServerName, setNewServerName] = useState("");
   const [inviteCode, setInviteCode] = useState(""); // New state for invite code, needs to get and set
+  const [loading, setLoading] = useState(true);
 
   // Gets servers for current user
   useEffect(() => {
     const fetchServers = async () => {
+      setLoading(true);
       try {
         const response = await fetch("/api/servers");
         if (!response.ok) {
@@ -50,6 +52,8 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
         setServers(data);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false); // End loading
       }
     };
 
@@ -68,7 +72,9 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
 
       if (serverId) {
         try {
-          const response = await fetch(`/api/userServerActions?serverId=${serverId}`);
+          const response = await fetch(
+            `/api/userServerActions?serverId=${serverId}`
+          );
           if (!response.ok) {
             throw new Error("Failed to fetch invite code");
           }
@@ -160,16 +166,16 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
 
   const handleLeaveServer = async () => {
     try {
-      const response = await fetch('/api/userServerActions', {
-        method: 'DELETE',
+      const response = await fetch("/api/userServerActions", {
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ serverId: selectedServer?.id }),
       });
 
       if (response.ok) {
-        console.log('Successfully left the server');
+        console.log("Successfully left the server");
         setServers((prevServers) =>
           prevServers.filter((server) => server.id !== selectedServer?.id)
         );
@@ -177,10 +183,10 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
         setSelectedServer(null);
       } else {
         const errorData = await response.json();
-        console.error('Failed to leave server:', errorData);
+        console.error("Failed to leave server:", errorData);
       }
     } catch (error) {
-      console.error('Error leaving server:', error);
+      console.error("Error leaving server:", error);
     }
   };
 
@@ -230,19 +236,19 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
   const handleDirectMessagesClick = () => {
     setSelectedServer(null); // null
     onSelectServer(""); // it's a string, so must be blank
-  }
+  };
 
   return (
     <div className="top-0 left-0 h-full w-[72px] m-0 flex flex-col text-white shadow-lg sidebar-container">
       {/* On Server Select, Show the TbMessageCircle2Filled */}
-      {selectedServer &&
+      {selectedServer && (
         <SideBarIcon
-        icon={<TbMessageCircle2Filled size={"30px"}/>}  
-        text="Direct Messages"
-        onClick={handleDirectMessagesClick}
-      /> 
-      }
-      
+          icon={<TbMessageCircle2Filled size={"30px"} />}
+          text="Direct Messages"
+          onClick={handleDirectMessagesClick}
+        />
+      )}
+
       <SideBarIcon
         icon={<IoPersonAdd size={"30px"} />}
         text="Friends"
@@ -264,7 +270,7 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
           }
         />
       ))}
-      <Divider />
+      {servers && !loading && <Divider />}
       <SideBarIcon
         icon={<BsGearFill size={"30px"} />}
         text="Settings"
@@ -293,7 +299,11 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
         />
       )}
       {addPopupVisible && (
-        <AddPopup onClose={handleCloseAddPopup} position={popupPosition} onServerAdded={handleServerAdded} />
+        <AddPopup
+          onClose={handleCloseAddPopup}
+          position={popupPosition}
+          onServerAdded={handleServerAdded}
+        />
       )}
       {friendPopupVisible && (
         <FriendPopup
