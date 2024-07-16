@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, MouseEvent } from "react";
 import "./ChannelListPopup.css";
 
 interface PopupProps {
@@ -16,31 +16,46 @@ const ChannelListPopup: React.FC<PopupProps> = ({
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
 
+  // re-used some code from the sidebar pop up here
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        popupRef.current &&
-        !popupRef.current.contains(event.target as Node)
-      ) {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside as unknown as EventListener
+    );
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside as unknown as EventListener
+      );
     };
   }, [onClose]);
+
+  // Offset constants so its below the channel 
+  const offsetX = -40;
+  const offsetY = 30;
 
   return (
     <div
       ref={popupRef}
       className="popup-menu1"
-      style={{ top: position.y, left: position.x }}
+      style={{
+        top: position.y + offsetY,
+        left: position.x + offsetX,
+        position: "absolute",
+      }}
+      onClick={onClose}
     >
-      <div className="popup-item1" onClick={onDelete}>
-        Delete
-      </div>
+      <ul className="popup-list" onClick={(e) => e.stopPropagation()}>
+        <li className="popup-item1" onClick={onDelete}>
+          Delete
+        </li>
+      </ul>
     </div>
   );
 };

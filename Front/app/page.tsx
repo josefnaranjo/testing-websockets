@@ -19,7 +19,7 @@ export default function Home() {
         <div className="messages-bar">
           <div className="w-[360px] h-[74px] left-0 top-0 absolute border-opacity-25"></div>
         </div>
-        <div className="direct-messages-container relative">
+        <div className="direct-messages-container">
           {selectedServerId ? (
             <ChannelList serverId={selectedServerId} />
           ) : (

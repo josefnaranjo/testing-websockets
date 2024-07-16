@@ -1,8 +1,9 @@
 /* Popup.css */
 .popup-menu1 {
-  @apply absolute bg-white z-50 rounded-md border-none shadow-md;
+  @apply bg-white z-50 rounded-md border-none shadow-md min-w-max;
 }
 
 .popup-item1 {
   @apply text-lg font-semibold cursor-pointer px-3 py-1 rounded-md text-rose-500 hover:bg-rose-200 transition-all duration-300;
 }
+
