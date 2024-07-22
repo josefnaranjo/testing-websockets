@@ -17,14 +17,14 @@ const MessageInput: React.FC<Props> = ({ onSendMessage }) => {
     if (typedMessage.trim() !== "") {
       onSendMessage(typedMessage);
       setTypedMessage("");
-      console.log("Message sent", typedMessage);
+      console.log("Message sent: ", typedMessage);
     }
   }
 
   useEffect(() => {
     const keyDownHandler = (e: any )  => {
       if (e && e.key) {
-        console.log("user pressed" + e.key);
+        console.log("user pressed: " + e.key);
       }
 
       if (e.key === 'Enter') {
@@ -74,7 +74,3 @@ const MessageInput: React.FC<Props> = ({ onSendMessage }) => {
 };
 
 export default MessageInput;
-
-
-
-

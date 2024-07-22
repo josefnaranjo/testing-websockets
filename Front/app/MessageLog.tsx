@@ -2,94 +2,100 @@ import React, { useEffect, useState } from "react";
 import MessageInput from "./components/message-column/MessageInput";
 import MessageNav from "./components/message-column/MessageNav";
 import UserMessages from "./components/message-column/Messages";
-import user from "../public/user.png";
 import axios from "axios";
-
+import { useSession } from "next-auth/react";
+import useWebSocket from "./useWebSocket";
+import Image from 'next/image';
 
 const MessageLog: React.FC = () => {
-  // State to manage messages
-  const [userMessages, setUserMessages] = useState<any[]>([
-    {
-      name: "Orchid",
-      img: user,
-      messages: [],
-    }
-  ]);
+  const { data: session } = useSession();
+  const { messages, sendMessage } = useWebSocket('ws://localhost:8080');
+  const [userMessages, setUserMessages] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // Fetch current user details
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (session?.user?.id) {
+        const response = await axios.get(`/api/user/${session.user.id}`);
+        const user = response.data;
+        setCurrentUser(user);
+      }
+    };
+    fetchUser();
+  }, [session]);
+
+  // Update userMessages state when new messages arrive
+  useEffect(() => {
+    const updatedUserMessages = convertToUserMessages(messages);
+    setUserMessages(updatedUserMessages);
+  }, [messages]);
 
   // Function to handle sending messages
-  const sendMessage = (message: string) => {
-    // send message to api along with channel it is for and your token.
-    // NOTE replace REDUX.user.name with whatever method is used to fetch user's ID
-    const copyUserMessages = [...userMessages];
-    if (copyUserMessages[copyUserMessages.length -1].userID == 3) {
-      copyUserMessages[copyUserMessages.length -1].messages.push({
-        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-        text: message,
-      });
-    } else {
-      copyUserMessages.push({
-        name: 'Orchid',
-        img: user,
-        userID: 3,
-        messages: [{
-          time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-          text: message,
-        }]
-      });
-    }
-    setUserMessages(copyUserMessages);
+  const handleSendMessage = (message: string) => {
+    if (!currentUser) return;
+    const newMessage = {
+      channelId: 1,
+      content: message,
+      userId: currentUser.id // Include user ID in the message
+    };
+    sendMessage(newMessage);
   };
 
-  // Make User Messages from channelMessages TODO:: make a type for message objects ;)
-  const convertToUserMessages = (messages: Array<any>): any[] => {
+  // Convert received messages to user messages format
+  const convertToUserMessages = (messages: any[]): any[] => {
     const convertedUserMessages: any[] = [];
-    // {img: some image, messages: [], name: string}
-    let lastUserID: number = 0;
+    let lastUserID: string = '';
     let currentUserMessage: any = {
-      name: 'yoink',
+      name: '',
       messages: [],
       img: null,
-      userID: 0
+      userID: ''
     };
-    console.log(messages);
+
     messages.forEach(message => {
-      if (message.userID === lastUserID) {
+      if (message.userId === lastUserID) {
         currentUserMessage.messages.push(convertMessageBody(message));
         return;
       }
-      if (lastUserID !== 0) {
+      if (lastUserID !== '') {
         convertedUserMessages.push(currentUserMessage);
       }
       currentUserMessage = {
-        name: message.userID,
-        userID: message.userID,
+        name: message.user.name,
+        userID: message.userId,
         messages: [convertMessageBody(message)],
-        img: null
+        img: message.user.image || '/user.png' // Check if user image is available
       };
-      lastUserID = message.userID;
+      lastUserID = message.userId;
     });
-    convertedUserMessages.push(currentUserMessage);
+
+    if (currentUserMessage.userID !== '') {
+      convertedUserMessages.push(currentUserMessage);
+    }
+
     return convertedUserMessages;
   };
 
   const convertMessageBody = (message: any) => {
     return {
-      time: 'created at ' + message.createdTS,
-      text: message.messageContent
-    }
-  }
+      time: 'created at ' + message.createdAt,
+      text: message.content
+    };
+  };
 
   const channelId = 1;
- 
+
+  // Fetch initial messages
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/directMessages?id=" + channelId + "&createdTS=0" )
+      .get(`/api/directMessages?id=${channelId}&createdTS=0`)
       .then((res) => {
-        setUserMessages(convertToUserMessages(res.data))
+        setUserMessages(convertToUserMessages(res.data));
       })
       .catch(err => {
-        console.log(err, err.response);
-      })
+        console.log(err);
+      });
   }, []);
 
   return (
@@ -106,7 +112,7 @@ const MessageLog: React.FC = () => {
             />
           ))}
         </div>
-        <MessageInput onSendMessage={sendMessage} />
+        <MessageInput onSendMessage={handleSendMessage} />
       </div>
     </>
   );

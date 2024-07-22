@@ -1,23 +1,48 @@
 import { NextResponse, NextRequest } from "next/server";
+import prisma from '@/prisma/client';
 
-
-// "localhost:3000/api/getChannelMessages/" + channelId + "?startTS=0"
-// To handle a GET request to /channelMessages
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const result = [
-    {userID: 1, channelID: 1, createdTS: 1, messageContent: 'yolo', updateTS: 1},
-    {userID: 1, channelID: 1, createdTS: 3, messageContent: 'yay', updateTS: 3},
-    {userID: 2, channelID: 1, createdTS: 4, messageContent: 'all', updateTS: 4},
-    {userID: 2, channelID: 1, createdTS: 5, messageContent: 'one', updateTS: 5},
-    {userID: 2, channelID: 1, createdTS: 6, messageContent: 'bubble', updateTS: 6},
-    {userID: 1, channelID: 1, createdTS: 7, messageContent: 'hello world', updateTS: 7}
-  ];
-  return NextResponse.json(result, { status: 200 });
+  const channelId = parseInt(params.get("id") || "0");
+  const startTS = parseInt(params.get("createdTS") || "0");
+
+  try {
+    const messages = await prisma.message.findMany({
+      where: {
+        channelId: channelId.toString(),
+        createdAt: {
+          gte: new Date(startTS), // Assuming createdTS is a timestamp in milliseconds
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    return NextResponse.json(messages, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return NextResponse.json({ error: "Error fetching messages" }, { status: 500 });
+  }
 }
 
-// To handle a POST request to /api
 export async function POST(request: NextRequest) {
-  // Do whatever you want
-  return NextResponse.json({ message: "Hello World post" }, { status: 200 });
-} 
+  const body = await request.json();
+
+  const { channelId, content, userId } = body;
+
+  try {
+    const savedMessage = await prisma.message.create({
+      data: {
+        content,
+        channelId,
+        userId,
+      },
+    });
+
+    return NextResponse.json(savedMessage, { status: 201 });
+  } catch (error) {
+    console.error("Error saving message:", error);
+    return NextResponse.json({ error: "Error saving message" }, { status: 500 });
+  }
+}

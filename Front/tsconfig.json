@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "types": ["node", "ws"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -17,10 +14,9 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "*"
-      ]
+      "@/*": ["*"]
     },
+    "allowImportingTsExtensions": true,
     "incremental": true,
     "plugins": [
       {
@@ -28,6 +24,15 @@
       }
     ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "public/Icons/Icons.js", "lib/icons.js", "app/api/servers/[serverId]"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "public/Icons/Icons.js",
+    "lib/icons.js",
+    "app/api/servers/[serverId]",
+    "lib/db.ts"
+  ],
   "exclude": ["node_modules"]
 }
