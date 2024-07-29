@@ -10,9 +10,9 @@ interface Message {
 }
 
 interface Props {
-  img: string; // Assume img is a URL string
+  img: string; // Adjust to accept a string URL for the image
   name: string;
-  userID: string; // Add userID to the props
+  userID: string; // Ensure userID prop is defined
   messages: Message[];
 }
 
@@ -39,16 +39,17 @@ const UserMessages: React.FC<Props> = ({ img, name, userID, messages }) => {
             <Image
               src={img}
               quality={100}
-              width={43}
-              height={43}
+              width={43} // Specify width
+              height={43} // Specify height
               style={{
+                maxWidth: "43px",
+                maxHeight: "43px",
                 borderRadius: "50%",
               }}
               alt="prof-pic"
             />
           )}
           <div className="username">{name}</div>
-          <div className="userid">User ID: {userID}</div> {/* Display userID */}
           {messages[0] && (
             <div className="time-entry">{messages[0].time}</div>
           )}
@@ -73,6 +74,6 @@ const UserMessages: React.FC<Props> = ({ img, name, userID, messages }) => {
       </div>
     </div>
   );
-};
+}
 
 export default UserMessages;

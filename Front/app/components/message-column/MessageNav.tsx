@@ -17,6 +17,6 @@ const MessageNav: React.FC<Props> = ({ channelName, channelId }: Props) => {
       </div>
     </nav>
   );
-};
+}
 
 export default MessageNav;

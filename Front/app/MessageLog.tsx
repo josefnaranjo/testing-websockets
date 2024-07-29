@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import MessageInput from "./components/message-column/MessageInput";
 import MessageNav from "./components/message-column/MessageNav";
 import ExistingUserMessages from "./components/message-column/Messages";
 import axios from "axios";
-import { StaticImageData } from "next/image";
 import { currentUser } from "@/lib/current-user";
 
 interface Message {
@@ -16,7 +15,7 @@ interface Message {
 
 interface NEWUserMessage {
   name: string;
-  img: string | null; // Adjust to handle image URL as string
+  img: string | null;
   userID: string;
   messages: Message[];
 }
@@ -24,63 +23,25 @@ interface NEWUserMessage {
 interface MessageLogProps {
   channelName: string;
   channelId: string;
+  userId: string;
 }
 
-const MessageLog = ({ channelName, channelId }: MessageLogProps) => {
+const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   const [userMessages, setUserMessages] = useState<NEWUserMessage[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>("");
   const [selectedChannelName, setSelectedChannelName] = useState<string>(channelName);
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
-  const socket = useRef<WebSocket | null>(null);
 
   const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/sample.jpg"; // Example fallback URL from Cloudinary
 
-  const channelIDTemplate = `${channelId}`;
-  const channelNameTemplate = `${channelName}`;
-
-  useEffect(() => {
-    const fetchChannelName = async () => {
-      try {
-        const response = await fetch(`/api/channels/${channelId}`);
-        if (response.ok) {
-          const channel = await response.json();
-          setSelectedChannelName(channel.name);
-          setSelectedChannelId(channelId);
-          console.log(`You are now in Channel: "${channelNameTemplate}", ID: ${channelIDTemplate}`);
-        } else {
-          throw new Error("Failed to load channel name");
-        }
-      } catch (error) {
-        console.error("Error loading channel:", error);
-        setSelectedChannelName("Error loading channel");
-      }
-    };
-
-    fetchChannelName();
-  }, [channelId]);
-
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      console.log("Fetching current user..."); // Add logging
-      try {
-        const user = await currentUser();
-        console.log('Fetched current user:', user); // Add logging
-        if (user) {
-          setCurrentUserId(user.id);
-          console.log('Current user ID set to:', user.id); // Log currentUserId after setting it
-          setUserMessages([
-            {
-              name: user.name || "Orchid",
-              img: user.image || defaultAvatar, // Use user image or fallback URL
-              userID: user.id,
-              messages: [],
-            },
-          ]);
-        } else {
-          console.error("User is not authenticated");
-        }
-      } catch (error) {
-        console.error("Error fetching current user:", error);
+      const user = await currentUser();
+      if (user) {
+        setCurrentUserId(user.id);
+        console.log("Current user ID set to:", user.id); // Log currentUserId after setting it
+      } else {
+        console.error("User is not authenticated");
       }
     };
 
@@ -88,118 +49,135 @@ const MessageLog = ({ channelName, channelId }: MessageLogProps) => {
   }, []);
 
   useEffect(() => {
-    console.log('Current User ID in useEffect:', currentUserId); // Add logging
+    const fetchMessages = async () => {
+      try {
+        setUserMessages([]); // Reset messages when channel or user changes
 
-    // Establish WebSocket connection
-    socket.current = new WebSocket('ws://localhost:8080');
+        if (channelId) {
+          setSelectedChannelId(channelId);
+          setSelectedChannelName(channelName);
 
-    socket.current.onopen = () => {
-      console.log('WebSocket connected');
-    };
+          const response = await axios.get(`/api/channels/${channelId}`);
+          const channel = response.data;
+          const messages = channel.messages;
+          setUserMessages(await convertToUserMessages(messages));
+        } else if (userId) {
+          setSelectedChannelId(null);
+          setSelectedChannelName("Direct Messages");
 
-    socket.current.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log('WebSocket message received:', message);
-
-      // Update state with new message
-      setUserMessages((prevMessages) => {
-        const updatedMessages = [...prevMessages];
-        const existingUserIndex = updatedMessages.findIndex(
-          (userMessage) => userMessage.userID === message.userId
-        );
-
-        if (existingUserIndex !== -1) {
-          updatedMessages[existingUserIndex].messages.push(convertMessageBody(message));
-        } else {
-          updatedMessages.push({
-            name: message.user.name,
-            img: message.user.image || defaultAvatar, // Use user image or fallback URL
-            userID: message.userId,
-            messages: [convertMessageBody(message)],
-          });
+          const response = await axios.get(`/api/messages/${userId}`);
+          const messages = response.data;
+          setUserMessages(await convertToUserMessages(messages));
         }
-
-        return updatedMessages;
-      });
-    };
-
-    socket.current.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
-
-    socket.current.onerror = (error) => {
-      console.error('WebSocket error', error);
-    };
-
-    return () => {
-      if (socket.current) {
-        socket.current.close();
+      } catch (error) {
+        console.error("Error fetching messages:", error);
       }
     };
-  }, [currentUserId]); // Add dependency on currentUserId
+
+    fetchMessages();
+  }, [channelId, userId, channelName]);
+
+  const createNewMessage = async (content: string, channelId: string | null, userId: string): Promise<string | null> => {
+    const user = await currentUser();
+
+    if (!user) {
+      console.error("Unauthorized access");
+      return null;
+    }
+
+    try {
+      const response = await fetch('/api/directMessages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, channelId, userId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Message created:', data);
+        return data.id;
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to create message:', errorData);
+        return null;
+      }
+    } catch (error) {
+      console.error("Failed to create message:", error);
+      return null;
+    }
+  };
 
   const sendMessage = async (message: string): Promise<void> => {
-    console.log('sendMessage called'); // Log when sendMessage is called
-    console.log('Current User ID in sendMessage:', currentUserId); // Log currentUserId in sendMessage
     try {
-      if (!selectedChannelId) {
-        console.error("Channel ID is not set");
-        return;
-      }
+      const userId = currentUserId;
 
-      const userId = currentUserId; // Ensure this is valid and set
-      if (!userId) {
-        console.error("User ID is not set");
-        return;
-      }
-
-      console.log('Sending message with User ID:', userId); // Add logging
-
-      const channelId = selectedChannelId;
-
-      // Send the message to the WebSocket server
-      const newMessage = {
-        content: message,
-        channelId,
-        userId,
-      };
-
-      if (socket.current && socket.current.readyState === WebSocket.OPEN) {
-        socket.current.send(JSON.stringify(newMessage));
-      } else {
-        console.error("WebSocket is not connected");
+      if (selectedChannelId) {
+        const messageId = await createNewMessage(message, selectedChannelId, userId);
+        if (messageId != null) {
+          updateLocalMessages(userId, message, messageId);
+        }
+      } else if (userId) {
+        const messageId = await createNewMessage(message, null, userId);
+        if (messageId != null) {
+          updateLocalMessages(userId, message, messageId);
+        }
       }
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
-  const convertToUserMessages = (messages: Array<any>): NEWUserMessage[] => {
+  const updateLocalMessages = (userId: string, message: string, messageId: string) => {
+    const copyNewUserMessages = [...userMessages];
+    if (copyNewUserMessages.length > 0 && copyNewUserMessages[copyNewUserMessages.length - 1].userID === userId) {
+      copyNewUserMessages[copyNewUserMessages.length - 1].messages.push({
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        text: message,
+        id: messageId,
+      });
+    } else {
+      copyNewUserMessages.push({
+        name: "You",
+        img: defaultAvatar,
+        userID: userId,
+        messages: [{
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          text: message,
+          id: messageId,
+        }],
+      });
+    }
+    setUserMessages(copyNewUserMessages);
+  };
+
+  const convertToUserMessages = async (messages: Array<any>): Promise<NEWUserMessage[]> => {
     const convertedUserMessages: NEWUserMessage[] = [];
     let lastUserID: string = "";
     let currentUserMessage: NEWUserMessage = {
-      name: "coffee",
+      name: "User",
       messages: [],
       img: null,
-      userID: "3"
+      userID: "",
     };
 
-    messages.forEach(message => {
+    for (const message of messages) {
       if (message.userId === lastUserID) {
         currentUserMessage.messages.push(convertMessageBody(message));
-        return;
+        continue;
       }
       if (lastUserID !== "") {
         convertedUserMessages.push(currentUserMessage);
       }
+      const userResponse = await axios.get(`/api/user/${message.userId}`);
+      const user = userResponse.data;
       currentUserMessage = {
-        name: message.user.name || "Orchid", // Replace with actual name from user data
+        name: user.name || "User",
         userID: message.userId,
         messages: [convertMessageBody(message)],
-        img: message.user.image || defaultAvatar // Use user image or fallback URL
+        img: user.image || defaultAvatar,
       };
       lastUserID = message.userId;
-    });
+    }
 
     if (currentUserMessage.messages.length > 0) {
       convertedUserMessages.push(currentUserMessage);
@@ -210,33 +188,17 @@ const MessageLog = ({ channelName, channelId }: MessageLogProps) => {
   const convertMessageBody = (message: any): Message => {
     const date = new Date(message.createdAt);
     const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const minutes = date.getUTCMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
     const formattedHours = hours % 12 || 12;
     const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
 
     return {
       time: formattedTime,
       text: message.content,
-      id: message.id
+      id: message.id,
     };
   };
-
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const response = await axios.get(`/api/directMessages?id=${channelId}&createdTS=0`);
-        console.log(`Here are the fetched messages for "${channelNameTemplate}", ID: ${channelIDTemplate}`, response.data);
-        setUserMessages(convertToUserMessages(response.data));
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    if (selectedChannelId) {
-      fetchMessages();
-    }
-  }, [selectedChannelId]);
 
   return (
     <>
@@ -246,7 +208,7 @@ const MessageLog = ({ channelName, channelId }: MessageLogProps) => {
           {userMessages.map((userMessage, index) => (
             <ExistingUserMessages
               key={index}
-              img={userMessage.img || defaultAvatar} // Ensure img is a URL
+              img={userMessage.img || defaultAvatar}
               name={userMessage.name}
               userID={userMessage.userID} // Ensure userID is passed
               messages={userMessage.messages}
