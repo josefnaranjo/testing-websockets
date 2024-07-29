@@ -4,9 +4,10 @@ import { FiPaperclip } from "react-icons/fi";
 
 interface Props {
   channelName: string;
+  channelId: string | null;
 }
 
-const MessageNav: React.FC<Props> = ({ channelName }: Props) => {
+const MessageNav: React.FC<Props> = ({ channelName, channelId }: Props) => {
   return (
     <nav className="message-navbar">
       <h1 className="channel-name">{channelName}</h1>
@@ -16,6 +17,6 @@ const MessageNav: React.FC<Props> = ({ channelName }: Props) => {
       </div>
     </nav>
   );
-}
+};
 
 export default MessageNav;

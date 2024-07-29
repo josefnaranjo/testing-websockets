@@ -1,7 +1,7 @@
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import { BiTrashAlt } from "react-icons/bi";
 import { TbMoodSmile, TbPencil } from "react-icons/tb";
-import React, { useState, FormEvent, useEffect } from "react";
+import React from "react";
 import "./Messages.css";
 
 interface Message {
@@ -10,42 +10,47 @@ interface Message {
 }
 
 interface Props {
-  img: StaticImageData;
+  img: string; // Assume img is a URL string
   name: string;
+  userID: string; // Add userID to the props
   messages: Message[];
 }
 
-
-const UserMessages: React.FC<Props> = ({ img, name, messages }: Props) => {
-
-  function displayUserInfo () {
+const UserMessages: React.FC<Props> = ({ img, name, userID, messages }) => {
+  function displayUserInfo() {
     console.log('displayUserInfo clicked');
   }
 
-  function deleteMessage (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  function deleteMessage(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     const deleteThisMessage = event.currentTarget.closest('.text-message');
     if (deleteThisMessage) {
       deleteThisMessage.remove();
     }
   }
 
+  // Log the received props for debugging
+  console.log('UserMessages props:', { img, name, userID, messages });
 
-return (
-    <div className='message-entry-container' >
-      <div className="userinfo-message-container" >
+  return (
+    <div className="message-entry-container">
+      <div className="userinfo-message-container">
         <div className="userinfo-container" onClick={displayUserInfo}>
-          { img != null &&  (<Image src={img}
-                 quality={100}
-                 style={{
-                    maxWidth: "43px",
-                    maxHeight: "43px",
-                    borderRadius: "50%",
-                 }}
-                 alt="prof-pic"
-          /> ) }
-          <div className="username"> {name} </div>
+          {img && (
+            <Image
+              src={img}
+              quality={100}
+              width={43}
+              height={43}
+              style={{
+                borderRadius: "50%",
+              }}
+              alt="prof-pic"
+            />
+          )}
+          <div className="username">{name}</div>
+          <div className="userid">User ID: {userID}</div> {/* Display userID */}
           {messages[0] && (
-            <div className="time-entry"> {messages[0].time} </div>
+            <div className="time-entry">{messages[0].time}</div>
           )}
         </div>
         <div className="message-container">
@@ -68,6 +73,6 @@ return (
       </div>
     </div>
   );
-}
+};
 
 export default UserMessages;

@@ -1,5 +1,10 @@
 import { WebSocketServer } from 'ws';
-import { db } from './lib/db.ts'; // Ensure the path is correct based on your project structure
+import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const prisma = new PrismaClient();
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -11,21 +16,45 @@ wss.on('connection', (ws) => {
     const { channelId, content, userId } = parsedMessage;
 
     try {
-      const savedMessage = await db.message.create({
+      // Check if the user exists
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new Error(`User with ID ${userId} does not exist`);
+      }
+
+      const savedMessage = await prisma.message.create({
         data: {
           content,
-          channelId,
+          channelId: String(channelId), // Convert channelId to string
           userId,
+        },
+        include: {
+          user: true, // Include user data
         },
       });
 
+      const responseMessage = {
+        ...savedMessage,
+        user: {
+          name: savedMessage.user.name,
+          image: savedMessage.user.image,
+        }
+      };
+
       wss.clients.forEach((client) => {
         if (client.readyState === ws.OPEN) {
-          client.send(JSON.stringify(savedMessage));
+          client.send(JSON.stringify(responseMessage));
         }
       });
     } catch (error) {
-      console.error('Error saving message:', error);
+      if (error instanceof Error) {
+        console.error('Error saving message:', error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
     }
   });
 
