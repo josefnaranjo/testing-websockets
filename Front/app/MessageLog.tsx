@@ -14,7 +14,7 @@ interface Message {
   displayTime: string;
   userId: string;
   userName: string;
-  userImage: string;
+  userImage: string | null;
 }
 
 interface NEWUserMessage {
@@ -67,8 +67,14 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
           const response = await axios.get(`/api/channels/${channelId}`);
           const channel = response.data;
-          const messages = channel.messages;
-          setUserMessages(messages.map(convertMessageBody));
+          const messages = await Promise.all(
+            channel.messages.map(async (msg: any) => {
+              const userResponse = await axios.get(`/api/user/${msg.userId}`);
+              const user = userResponse.data;
+              return convertMessageBody({ ...msg, user });
+            })
+          );
+          setUserMessages(messages);
         }
       } catch (error) {
         console.error("Error fetching messages:", error);

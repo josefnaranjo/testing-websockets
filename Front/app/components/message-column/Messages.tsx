@@ -6,16 +6,16 @@ import "./Messages.css";
 
 interface Message {
   id: string;
-  displayTime: string;
   text: string;
+  displayTime: string;
 }
 
 interface Props {
-  img: string;
+  img: string; // Adjust to accept a string URL for the image
   name: string;
-  userID: string;
+  userID: string; // Ensure userID prop is defined
   messages: Message[];
-  onDeleteMessage: (messageId: string) => void; // Add this prop for deletion
+  onDeleteMessage: (messageId: string) => void; // Add onDeleteMessage prop
 }
 
 const UserMessages: React.FC<Props> = ({
@@ -33,7 +33,6 @@ const UserMessages: React.FC<Props> = ({
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     messageId: string
   ) {
-    event.preventDefault();
     onDeleteMessage(messageId);
   }
 
