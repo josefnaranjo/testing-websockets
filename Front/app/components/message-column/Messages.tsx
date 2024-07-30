@@ -18,12 +18,21 @@ interface Props {
   onDeleteMessage: (messageId: string) => void; // Pass the delete handler to the component
 }
 
-const UserMessages: React.FC<Props> = ({ img, name, userID, messages, onDeleteMessage }) => {
+const UserMessages: React.FC<Props> = ({
+  img,
+  name,
+  userID,
+  messages,
+  onDeleteMessage,
+}) => {
   function displayUserInfo() {
-    console.log('displayUserInfo clicked');
+    console.log("displayUserInfo clicked");
   }
 
-  function deleteMessage(event: React.MouseEvent<HTMLButtonElement, MouseEvent>, messageId: string) {
+  function deleteMessage(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    messageId: string
+  ) {
     event.stopPropagation();
     onDeleteMessage(messageId);
   }
@@ -55,13 +64,22 @@ const UserMessages: React.FC<Props> = ({ img, name, userID, messages, onDeleteMe
           {messages.map((message, index) => (
             <div key={index} className="text-message">
               {index !== 0 && (
-                <div className="time-entry time-entry-side">{message.displayTime}</div>
+                <div className="time-entry time-entry-side">
+                  {message.displayTime}
+                </div>
               )}
               {message.text}
               <div className="edit-box">
-                <button id="edit-pencil"><TbPencil className="edit-icon" /></button>
-                <button id="react-smile"><TbMoodSmile className="edit-icon" /></button>
-                <button id="delete-trash" onClick={(e) => deleteMessage(e, message.id)}>
+                <button id="edit-pencil">
+                  <TbPencil className="edit-icon" />
+                </button>
+                <button id="react-smile">
+                  <TbMoodSmile className="edit-icon" />
+                </button>
+                <button
+                  id="delete-trash"
+                  onClick={(e) => deleteMessage(e, message.id)}
+                >
                   <BiTrashAlt className="edit-icon" style={{ color: "red" }} />
                 </button>
               </div>
@@ -71,6 +89,6 @@ const UserMessages: React.FC<Props> = ({ img, name, userID, messages, onDeleteMe
       </div>
     </div>
   );
-}
+};
 
 export default UserMessages;

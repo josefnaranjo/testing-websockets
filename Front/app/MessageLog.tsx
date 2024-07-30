@@ -30,11 +30,15 @@ interface MessageLogProps {
 const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   const [userMessages, setUserMessages] = useState<NEWUserMessage[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>("");
-  const [selectedChannelName, setSelectedChannelName] = useState<string>(channelName);
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const [selectedChannelName, setSelectedChannelName] =
+    useState<string>(channelName);
+  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
+    null
+  );
   const socket = useRef<WebSocket | null>(null);
 
-  const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/sample.jpg";
+  const defaultAvatar =
+    "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -98,11 +102,13 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
           );
 
           if (existingUserIndex !== -1) {
-            const existingMessageIndex = updatedMessages[existingUserIndex].messages.findIndex(
-              (msg) => msg.id === message.id
-            );
+            const existingMessageIndex = updatedMessages[
+              existingUserIndex
+            ].messages.findIndex((msg) => msg.id === message.id);
             if (existingMessageIndex === -1) {
-              updatedMessages[existingUserIndex].messages.push(convertMessageBody(message));
+              updatedMessages[existingUserIndex].messages.push(
+                convertMessageBody(message)
+              );
             }
           } else {
             updatedMessages.push({
@@ -114,8 +120,12 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
           }
 
           // Sort messages by timestamp to ensure correct order
-          updatedMessages.forEach(userMessage => {
-            userMessage.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+          updatedMessages.forEach((userMessage) => {
+            userMessage.messages.sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            );
           });
 
           return updatedMessages;
@@ -185,15 +195,17 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   const deleteMessageFromState = (messageId: string) => {
     setUserMessages((prevMessages) =>
       prevMessages
-        .map(userMessage => ({
+        .map((userMessage) => ({
           ...userMessage,
-          messages: userMessage.messages.filter(msg => msg.id !== messageId),
+          messages: userMessage.messages.filter((msg) => msg.id !== messageId),
         }))
-        .filter(userMessage => userMessage.messages.length > 0)
+        .filter((userMessage) => userMessage.messages.length > 0)
     );
   };
 
-  const convertToUserMessages = async (messages: Array<any>): Promise<NEWUserMessage[]> => {
+  const convertToUserMessages = async (
+    messages: Array<any>
+  ): Promise<NEWUserMessage[]> => {
     const convertedUserMessages: NEWUserMessage[] = [];
     let lastUserID: string = "";
     let currentUserMessage: NEWUserMessage = {
@@ -230,19 +242,26 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
   const convertMessageBody = (message: any): Message => {
     const date = new Date(message.createdAt);
-    const localTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    const localTime = date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
 
     return {
       id: message.id,
       createdAt: message.createdAt, // Keep the original timestamp for sorting
       text: message.content,
-      displayTime: localTime // Human-readable format
+      displayTime: localTime, // Human-readable format
     };
   };
 
   return (
     <>
-      <MessageNav channelName={selectedChannelName} channelId={selectedChannelId} />
+      <MessageNav
+        channelName={selectedChannelName}
+        channelId={selectedChannelId}
+      />
       <div className="flex flex-col justify-between h-full">
         <div className="overflow-auto flex-grow max-h-[720px]">
           {userMessages.map((userMessage, index) => (

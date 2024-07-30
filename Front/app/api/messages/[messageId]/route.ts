@@ -24,7 +24,10 @@ export async function DELETE(req: NextRequest) {
     });
 
     console.log("Message deleted successfully:", message);
-    return NextResponse.json({ message: "Message deleted successfully" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Message deleted successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error deleting message:", error);
     return NextResponse.json(
