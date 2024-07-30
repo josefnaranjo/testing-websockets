@@ -1,4 +1,4 @@
-import React, { useState, useEffect, RefObject, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Divider from '../Divider/Divider';
 import '../Popup/Popup.css';
 import './FriendPopup.css';
@@ -6,7 +6,6 @@ import './FriendPopup.css';
 interface FriendPopupProps {
     onClose: () => void;
     position: { x: number; y: number };
-    ref?: RefObject<HTMLDivElement>; // Added the ref property to the interface
 }
 
 interface Friend {
@@ -17,8 +16,7 @@ interface Friend {
 const offsetX = 40;
 const offsetY = -60;
 
-const FriendPopup = ({ onClose, position, ref }: FriendPopupProps) => {
-    const friendPopupRef = useRef<HTMLDivElement>(null);
+const FriendPopup = ({ onClose, position }: FriendPopupProps) => {
     const [friendId, setFriendId] = useState('');
     const [friends, setFriends] = useState<Friend[]>([]);
 
@@ -57,7 +55,6 @@ const FriendPopup = ({ onClose, position, ref }: FriendPopupProps) => {
                 alert(result.success);
                 setFriends([...friends, { id: friendId }]); // Updates the UI with the new friend, it's only their ID but it still reflects that it went through
                 setFriendId('');
-                window.location.reload(); // I know it updates, but this reload is also for the DM List component so that it's updated
             } else {
                 alert(result.error);
             }
@@ -87,31 +84,8 @@ const FriendPopup = ({ onClose, position, ref }: FriendPopupProps) => {
         }
     };
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-          if (
-            friendPopupRef.current &&
-            !friendPopupRef.current.contains(event.target as Node)
-          ) {
-            onClose();
-          }
-        };
-    
-        document.addEventListener(
-          "mousedown",
-          handleClickOutside as unknown as EventListener
-        );
-        return () => {
-          document.removeEventListener(
-            "mousedown",
-            handleClickOutside as unknown as EventListener
-          );
-        };
-      }, [onClose]);
-
     return (
         <div
-            ref={ref || friendPopupRef}
             className="popup flex flex-col"
             style={{
                 top: position.y + offsetY,

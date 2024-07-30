@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 import { db as prisma } from "@/lib/db";
-import { currentUser } from "@/lib/current-user";
+import { currentUser } from '@/lib/current-user';
 
 export async function PUT(request: NextRequest) {
   try {
     const user = await currentUser();
     if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     const { id: serverId, name } = await request.json();
@@ -20,18 +20,12 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "You are not a member of this server" },
-        { status: 405 }
-      );
+      return NextResponse.json({ error: 'You are not a member of this server' }, { status: 405 });
     }
 
     // Check if the user is an Admin or Moderator, will implement this functionality later
-    if (member.role !== "ADMIN" && member.role !== "MODERATOR") {
-      return NextResponse.json(
-        { error: "You do not have permission to update this server" },
-        { status: 403 }
-      );
+    if (member.role !== 'ADMIN' && member.role !== 'MODERATOR') {
+      return NextResponse.json({ error: 'You do not have permission to update this server' }, { status: 403 });
     }
 
     // Update the server name
@@ -42,10 +36,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(updatedServer, { status: 200 });
   } catch (error) {
-    console.error("Failed to update server:", error);
-    return NextResponse.json(
-      { error: "Failed to update server" },
-      { status: 500 }
-    );
+    console.error('Failed to update server:', error);
+    return NextResponse.json({ error: 'Failed to update server' }, { status: 500 });
   }
 }

@@ -1,42 +1,27 @@
 import { WebSocketServer } from 'ws';
-import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
+import { db } from './lib/db.ts'; // Ensure the path is correct based on your project structure
 
-dotenv.config();
-
-const prisma = new PrismaClient();
 const wss = new WebSocketServer({ port: 8080 });
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-
+  
   ws.on('message', async (message) => {
     const parsedMessage = JSON.parse(message.toString());
     const { channelId, content, userId } = parsedMessage;
 
     try {
-      const savedMessage = await prisma.message.create({
+      const savedMessage = await db.message.create({
         data: {
           content,
-          channelId: String(channelId), // Ensure channelId is a string
+          channelId,
           userId,
-        },
-        include: {
-          user: true, // Include user data
         },
       });
 
-      const responseMessage = {
-        ...savedMessage,
-        user: {
-          name: savedMessage.user.name,
-          image: savedMessage.user.image,
-        }
-      };
-
       wss.clients.forEach((client) => {
         if (client.readyState === ws.OPEN) {
-          client.send(JSON.stringify(responseMessage));
+          client.send(JSON.stringify(savedMessage));
         }
       });
     } catch (error) {
