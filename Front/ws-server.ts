@@ -5,30 +5,20 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const prisma = new PrismaClient();
-
 const wss = new WebSocketServer({ port: 8080 });
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  
+
   ws.on('message', async (message) => {
     const parsedMessage = JSON.parse(message.toString());
     const { channelId, content, userId } = parsedMessage;
 
     try {
-      // Check if the user exists
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      if (!user) {
-        throw new Error(`User with ID ${userId} does not exist`);
-      }
-
       const savedMessage = await prisma.message.create({
         data: {
           content,
-          channelId: String(channelId), // Convert channelId to string
+          channelId: String(channelId), // Ensure channelId is a string
           userId,
         },
         include: {
@@ -50,11 +40,7 @@ wss.on('connection', (ws) => {
         }
       });
     } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error saving message:', error.message);
-      } else {
-        console.error('Unexpected error:', error);
-      }
+      console.error('Error saving message:', error);
     }
   });
 

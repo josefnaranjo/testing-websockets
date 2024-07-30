@@ -5,31 +5,28 @@ import React from "react";
 import "./Messages.css";
 
 interface Message {
-  time: string;
+  id: string;
+  displayTime: string;
   text: string;
 }
 
 interface Props {
-  img: string; // Adjust to accept a string URL for the image
+  img: string;
   name: string;
-  userID: string; // Ensure userID prop is defined
+  userID: string;
   messages: Message[];
+  onDeleteMessage: (messageId: string) => void; // Pass the delete handler to the component
 }
 
-const UserMessages: React.FC<Props> = ({ img, name, userID, messages }) => {
+const UserMessages: React.FC<Props> = ({ img, name, userID, messages, onDeleteMessage }) => {
   function displayUserInfo() {
     console.log('displayUserInfo clicked');
   }
 
-  function deleteMessage(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    const deleteThisMessage = event.currentTarget.closest('.text-message');
-    if (deleteThisMessage) {
-      deleteThisMessage.remove();
-    }
+  function deleteMessage(event: React.MouseEvent<HTMLButtonElement, MouseEvent>, messageId: string) {
+    event.stopPropagation();
+    onDeleteMessage(messageId);
   }
-
-  // Log the received props for debugging
-  console.log('UserMessages props:', { img, name, userID, messages });
 
   return (
     <div className="message-entry-container">
@@ -39,8 +36,8 @@ const UserMessages: React.FC<Props> = ({ img, name, userID, messages }) => {
             <Image
               src={img}
               quality={100}
-              width={43} // Specify width
-              height={43} // Specify height
+              width={43}
+              height={43}
               style={{
                 maxWidth: "43px",
                 maxHeight: "43px",
@@ -51,20 +48,20 @@ const UserMessages: React.FC<Props> = ({ img, name, userID, messages }) => {
           )}
           <div className="username">{name}</div>
           {messages[0] && (
-            <div className="time-entry">{messages[0].time}</div>
+            <div className="time-entry">{messages[0].displayTime}</div>
           )}
         </div>
         <div className="message-container">
           {messages.map((message, index) => (
             <div key={index} className="text-message">
               {index !== 0 && (
-                <div className="time-entry time-entry-side">{message.time}</div>
+                <div className="time-entry time-entry-side">{message.displayTime}</div>
               )}
               {message.text}
               <div className="edit-box">
                 <button id="edit-pencil"><TbPencil className="edit-icon" /></button>
                 <button id="react-smile"><TbMoodSmile className="edit-icon" /></button>
-                <button id="delete-trash" onClick={deleteMessage}>
+                <button id="delete-trash" onClick={(e) => deleteMessage(e, message.id)}>
                   <BiTrashAlt className="edit-icon" style={{ color: "red" }} />
                 </button>
               </div>
