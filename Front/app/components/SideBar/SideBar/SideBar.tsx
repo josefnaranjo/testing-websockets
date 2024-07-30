@@ -14,6 +14,7 @@ import FriendPopup from "../FriendPopup/FriendPopup";
 
 import { useOutsideClick } from "./useOutsideClick"; // Import the custom hook
 
+
 interface Server {
   id: string;
   name: string;
@@ -38,6 +39,7 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
   const [newServerName, setNewServerName] = useState("");
   const [inviteCode, setInviteCode] = useState(""); // New state for invite code, needs to get and set
   const [loading, setLoading] = useState(true);
+  
 
   // Gets servers for current user
   useEffect(() => {
@@ -69,6 +71,8 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
     if (text && event) {
       const selectedServer = servers.find((server) => server.id === serverId);
       setSelectedServer(selectedServer || null);
+      // onSelectServer(serverId) do we want the right click to also select the server?
+      // if so, remove undefined from serverId above
 
       if (serverId) {
         try {
@@ -99,6 +103,7 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
     const selectedServer = servers.find((server) => server.id === serverId);
     setSelectedServer(selectedServer || null);
     onSelectServer(serverId);
+
     if (popupVisible) {
       setPopupVisible(false);
     }
@@ -181,6 +186,7 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
         );
         setPopupVisible(false);
         setSelectedServer(null);
+        onSelectServer(""); // this makes it so that the Direct Messages are shown IMMEDIATELY and channel list disappears
       } else {
         const errorData = await response.json();
         console.error("Failed to leave server:", errorData);
@@ -220,8 +226,41 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
     }
   };
 
+  const handleDeleteServer = async () => {
+    if (!selectedServer?.id) return;
+  
+    try {
+      const response = await fetch("/api/servers", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ serverId: selectedServer.id }),
+      });
+  
+      if (response.ok) {
+        console.log("Server deleted successfully");
+        setServers((prevServers) =>
+          prevServers.filter((server) => server.id !== selectedServer.id)
+        );
+        setPopupVisible(false);
+        setSelectedServer(null);
+        onSelectServer(""); // this makes it so that the Direct Messages are shown IMMEDIATELY and channel list disappears
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to delete server:", errorData);
+      }
+    } catch (error) {
+      console.error("Error deleting server:", error);
+    }
+  };
+  
+
   // Use the custom hook for outside click detection
   const popupRef = useOutsideClick(() => setPopupVisible(false));
+  const addPopupRef = useOutsideClick(() => setAddPopupVisible(false));
+  const friendsPopupRef = useOutsideClick(() => setFriendPopupVisible(false));
+  const settingsPopupRef = useOutsideClick(() => setSettingsPopupVisible(false));
 
   /* 
   This updates the UI with the new server whether created or joined, that way we don't have to refresh 
@@ -268,6 +307,7 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
           onContextMenu={(event) =>
             handleIconRightClick(server.name, event, server.id)
           }
+          className={ `${selectedServer?.id === server.id ? "selected" : "" }`} // Apply the Tailwind CSS classes conditionally if a server is selected
         />
       ))}
       {servers && !loading && <Divider />}
@@ -278,7 +318,10 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
       />
       {popupVisible && (
         <Popup
-          server={selectedServer?.name || ""}
+          // changed from just server to serverId and serverName. Makes handling things easier
+          serverId={selectedServer?.id || ""} // Pass the server ID
+          serverName={selectedServer?.name || ""} // Pass the server name
+          onDelete={handleDeleteServer}
           onClose={handleClosePopup}
           onLeave={handleLeaveServer}
           onEdit={() => setIsEditing(true)}
@@ -296,6 +339,7 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
           onAccountDetails={handleAccountDetails} // Add the navigation handler
           onClose={handleCloseSettingsPopup}
           position={popupPosition}
+          ref={settingsPopupRef} // Attach the ref to the popup
         />
       )}
       {addPopupVisible && (
@@ -303,12 +347,14 @@ const SideBar: React.FC<SideBarProps> = ({ onSelectServer }) => {
           onClose={handleCloseAddPopup}
           position={popupPosition}
           onServerAdded={handleServerAdded}
+          ref={addPopupRef}
         />
       )}
       {friendPopupVisible && (
         <FriendPopup
           onClose={handleCloseFriendPopup}
           position={popupPosition}
+          ref={friendsPopupRef}
         />
       )}
     </div>

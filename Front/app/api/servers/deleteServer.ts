@@ -1,19 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import { db as prisma } from "@/lib/db";
-import { currentUser } from '@/lib/current-user';
+import { currentUser } from "@/lib/current-user";
 
- 
-
-export async function DELETE(request: NextRequest) {
+export async function DELETE(req: NextRequest) {
   try {
     const user = await currentUser();
     if (!user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      console.error("User not authenticated");
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { id: serverId } = await request.json();
+    const { serverId } = await req.json();
 
-    // Fetch the user's role in the server
+    if (!serverId) {
+      console.error("Missing serverId");
+      return NextResponse.json({ error: "Missing serverId" }, { status: 400 });
+    }
+
+    const server = await prisma.server.findUnique({
+      where: { id: serverId },
+    });
+
+    if (!server) {
+      console.error("Server not found");
+      return NextResponse.json({ error: "Server not found" }, { status: 404 });
+    }
+
     const member = await prisma.member.findFirst({
       where: {
         serverId,
@@ -21,26 +33,25 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
-    // Check if the user is a member
-    if (!member) {
-      return NextResponse.json({ error: 'You are not a member of this server' }, { status: 403 });
+    // Check's if the user is not a member or if their role is not ADMIN
+    if (!member || member.role !== "ADMIN") {
+      console.error("User is not an admin of this server");
+      return NextResponse.json(
+        { error: "You are not authorized to delete this server" },
+        { status: 403 }
+      );
     }
 
-    // Check if the user is an Admin or Moderator, if they're not then they CANNOT delete the server, will implement this later
-    if (member.role !== 'ADMIN' && member.role !== 'MODERATOR') {
-      return NextResponse.json({ error: 'You do not have permission to delete this server' }, { status: 403 });
-    }
-
-    // Delete the server from the database, erasing everything
     await prisma.server.delete({
-      where: {
-        id: serverId,
-      },
+      where: { id: serverId },
     });
 
-    return NextResponse.json({ message: 'Server deleted' }, { status: 200 });
+    return NextResponse.json({ message: "Server deleted." }, { status: 200 });
   } catch (error) {
-    console.error('Failed to delete server:', error);
-    return NextResponse.json({ error: 'Failed to delete server' }, { status: 500 });
+    console.error("Error deleting server:", error);
+    return NextResponse.json(
+      { error: "Failed to delete server" },
+      { status: 500 }
+    );
   }
 }

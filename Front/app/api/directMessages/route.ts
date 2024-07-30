@@ -3,13 +3,13 @@ import prisma from '@/prisma/client';
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const channelId = parseInt(params.get("id") || "0");
+  const channelId = params.get("id") || "";
   const startTS = parseInt(params.get("createdTS") || "0");
 
   try {
     const messages = await prisma.message.findMany({
       where: {
-        channelId: channelId.toString(),
+        channelId,
         createdAt: {
           gte: new Date(startTS), // Assuming createdTS is a timestamp in milliseconds
         },
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const savedMessage = await prisma.message.create({
       data: {
         content,
-        channelId,
+        channelId: String(channelId), // Convert channelId to string
         userId,
       },
     });
