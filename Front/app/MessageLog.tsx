@@ -6,6 +6,7 @@ import MessageNav from "./components/message-column/MessageNav";
 import ExistingUserMessages from "./components/message-column/Messages";
 import axios from "axios";
 import { currentUser } from "@/lib/current-user";
+import useWebSocket from "@/app/useWebSocket";
 
 interface Message {
   id: string;
@@ -43,6 +44,10 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
   const defaultAvatar =
     "https://res.cloudinary.com/demo/image/upload/sample.jpg";
+
+  const { messages: webSocketMessages, sendMessage } = useWebSocket(
+    "ws://localhost:8080"
+  );
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -86,56 +91,28 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   }, [channelId, userId, channelName]);
 
   useEffect(() => {
-    if (!socket.current) {
-      socket.current = new WebSocket("ws://localhost:8080");
-
-      socket.current.onopen = () => {
-        console.log("WebSocket connected");
-      };
-
-      socket.current.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        console.log("WebSocket message received:", message);
-
-        setUserMessages((prevMessages) => {
-          const updatedMessages = [
-            ...prevMessages,
-            convertMessageBody(message),
-          ];
-          // Sort messages by timestamp to ensure correct order
-          updatedMessages.sort(
-            (a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-          return updatedMessages;
-        });
-      };
-
-      socket.current.onclose = () => {
-        console.log("WebSocket disconnected");
-      };
-
-      socket.current.onerror = (error) => {
-        console.error("WebSocket error", error);
-      };
+    if (webSocketMessages.length) {
+      setUserMessages((prevMessages) => {
+        const newMessages = webSocketMessages.map((msg) =>
+          convertMessageBody(msg)
+        );
+        const allMessages = [...prevMessages, ...newMessages];
+        allMessages.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        return allMessages;
+      });
     }
-
-    return () => {
-      if (socket.current) {
-        socket.current.close();
-        socket.current = null;
-      }
-    };
-  }, [currentUserId]);
+  }, [webSocketMessages]);
 
   useEffect(() => {
-    // Scroll to the bottom whenever the userMessages state changes
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [userMessages]);
 
-  const sendMessage = async (message: string): Promise<void> => {
+  const handleMessageSend = async (message: string): Promise<void> => {
     try {
       const userId = currentUserId;
 
@@ -145,24 +122,14 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
           channelId: selectedChannelId,
           userId,
         };
-
-        if (socket.current && socket.current.readyState === WebSocket.OPEN) {
-          socket.current.send(JSON.stringify(newMessage));
-        } else {
-          console.error("WebSocket is not connected");
-        }
+        sendMessage(newMessage);
       } else if (userId) {
         const newMessage = {
           content: message,
           channelId: null,
           userId,
         };
-
-        if (socket.current && socket.current.readyState === WebSocket.OPEN) {
-          socket.current.send(JSON.stringify(newMessage));
-        } else {
-          console.error("WebSocket is not connected");
-        }
+        sendMessage(newMessage);
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -219,13 +186,13 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
               userID={message.userId}
               messages={[message]}
               onDeleteMessage={deleteMessage}
-              currentUserId={currentUserId} // Pass currentUserId to check ownership
+              currentUserId={currentUserId} // Pass the currentUserId to ExistingUserMessages
             />
           ))}
           <div ref={messagesEndRef} />{" "}
           {/* This div will be scrolled into view */}
         </div>
-        <MessageInput onSendMessage={sendMessage} />
+        <MessageInput onSendMessage={handleMessageSend} />
       </div>
     </>
   );
