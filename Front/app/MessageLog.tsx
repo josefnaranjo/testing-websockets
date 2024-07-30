@@ -39,6 +39,7 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
     null
   );
   const socket = useRef<WebSocket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null); // Reference for the end of the messages
 
   const defaultAvatar =
     "https://res.cloudinary.com/demo/image/upload/sample.jpg";
@@ -127,6 +128,13 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
     };
   }, [currentUserId]);
 
+  useEffect(() => {
+    // Scroll to the bottom whenever the userMessages state changes
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [userMessages]);
+
   const sendMessage = async (message: string): Promise<void> => {
     try {
       const userId = currentUserId;
@@ -211,8 +219,11 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
               userID={message.userId}
               messages={[message]}
               onDeleteMessage={deleteMessage}
+              currentUserId={currentUserId} // Pass currentUserId to check ownership
             />
           ))}
+          <div ref={messagesEndRef} />{" "}
+          {/* This div will be scrolled into view */}
         </div>
         <MessageInput onSendMessage={sendMessage} />
       </div>

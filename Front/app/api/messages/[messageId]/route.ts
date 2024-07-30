@@ -18,8 +18,25 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Missing messageId" }, { status: 400 });
     }
 
+    // Fetch the message to check the owner
+    const message = await prisma.message.findUnique({
+      where: { id: messageId },
+      select: { userId: true },
+    });
+
+    if (!message) {
+      console.error("Message not found");
+      return NextResponse.json({ error: "Message not found" }, { status: 404 });
+    }
+
+    // Check if the current user is the owner of the message
+    if (message.userId !== user.id) {
+      console.error("Unauthorized: User is not the owner of the message");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
     console.log(`Deleting message with ID: ${messageId}`);
-    const message = await prisma.message.delete({
+    await prisma.message.delete({
       where: { id: messageId },
     });
 
