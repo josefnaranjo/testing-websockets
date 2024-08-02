@@ -61,9 +61,9 @@ const AccountSettings: React.FC = () => {
 
   const handleSaveClick = async () => {
     try {
-      const response = await axios.put("/api/settings", settingsData);
-      console.log("Settings data updated successfully", response.data);
-      setOriginalData(response.data);
+      await axios.put("/api/settings", settingsData);
+      console.log("Settings data updated successfully");
+      setOriginalData(settingsData); // Update original data to match current settings
     } catch (error) {
       console.error("Error saving settings data:", error);
     }
@@ -74,10 +74,10 @@ const AccountSettings: React.FC = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setSettingsData((prevData: any) => ({
-      ...prevData,
-      settings: { ...prevData.settings, [field]: value },
-    }));
+    setSettingsData({
+      ...settingsData,
+      settings: { ...settingsData.settings, [field]: value },
+    });
   };
 
   const handleOverlayClick = (
