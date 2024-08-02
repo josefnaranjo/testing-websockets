@@ -1,13 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import ImageUpload from "../components/upload/page";
 
 const UploadPage: React.FC = () => {
   const userId = "your-user-id"; // Replace with actual user ID logic
+  const [imageUrl, setImageUrl] = useState<string>("");
 
-  const handleUpload = (imageUrl: string) => {
-    console.log("Uploaded image URL:", imageUrl);
+  const handleUpload = (url: string) => {
+    setImageUrl(url);
+    console.log("Uploaded image URL:", url);
   };
 
   const handleClose = () => {
@@ -22,6 +24,7 @@ const UploadPage: React.FC = () => {
         onClose={handleClose}
         onUpload={handleUpload}
       />
+      {imageUrl && <p>Image uploaded: {imageUrl}</p>}
     </div>
   );
 };

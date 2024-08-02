@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { CldImage } from "next-cloudinary";
-import styles from "./UploadImage.module.css"; // Ensure this path is correct
+import styles from "./UploadImage.module.css";
 import axios from "axios";
 
 interface ImageUploadProps {
   userId: string;
   onClose: () => void;
-  onUpload: (imageUrl: string) => void; // Add onUpload prop
+  onUpload: (imageUrl: string) => void;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -19,7 +19,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [message, setMessage] = useState<string | null>(null); // State to handle the message
+  const [message, setMessage] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -51,9 +51,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       const file = res.data;
       setPreviewUrl(file.secure_url);
 
-      // Update the user image in the database
       const updateRes = await axios.post("/api/upload", {
-        userId, // Use the provided userId prop
+        userId,
         imageUrl: file.secure_url,
       });
 
@@ -61,10 +60,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         throw new Error("Error updating user image");
       }
 
-      setMessage("Profile image updated"); // Set the success message
-      onUpload(file.secure_url); // Call onUpload with the new image URL
+      setMessage("Profile image updated");
+      onUpload(file.secure_url);
       setTimeout(() => {
-        onClose(); // Close the modal after 3 seconds
+        onClose();
       }, 3000);
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -81,7 +80,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         throw new Error("Error deleting user image");
       }
 
-      // Reset the preview URL to show the default profile icon
       setPreviewUrl(null);
       console.log("User image deleted successfully");
     } catch (error) {

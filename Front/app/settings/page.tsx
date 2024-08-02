@@ -10,8 +10,8 @@ import SettingInputField from "./_components/SettingInputField";
 import Image from "next/image";
 
 const AccountSettings: React.FC = () => {
-  const [settingsData, setSettingsData] = useState<any>(null); // State variable to store settings data
-  const [originalData, setOriginalData] = useState<any>(null); // To store original data
+  const [settingsData, setSettingsData] = useState<any>(null);
+  const [originalData, setOriginalData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showImageUpload, setShowImageUpload] = useState(false);
 
@@ -20,7 +20,6 @@ const AccountSettings: React.FC = () => {
       const response = await axios.get("/api/settings");
       console.log("Fetched settings data:", response.data);
 
-      // Ensure createdAt is a valid date
       const createdAt = new Date(response.data.createdAt);
       const isValidDate = !isNaN(createdAt.getTime());
 
@@ -148,7 +147,7 @@ const AccountSettings: React.FC = () => {
                 >
                   <div className="bg-white p-4 rounded-lg shadow-lg">
                     <ImageUpload
-                      userId={settingsData?.id} // Ensure the correct userId is passed
+                      userId={settingsData?.id}
                       onClose={() => setShowImageUpload(false)}
                       onUpload={handleImageUpload}
                     />
