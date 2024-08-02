@@ -16,7 +16,7 @@ export async function GET() {
       where: { id: userId },
       select: {
         id: true,
-        email: true, // Ensure email is included
+        email: true,
         image: true,
         createdAt: true,
         settings: {
@@ -26,7 +26,7 @@ export async function GET() {
             dob: true,
             business: true,
             memberSince: true,
-            email: true, // Include settings email
+            email: true,
             phone: true,
             country: true,
             language: true,
