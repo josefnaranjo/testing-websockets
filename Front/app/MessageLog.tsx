@@ -18,13 +18,6 @@ interface Message {
   userImage: string | null;
 }
 
-interface NEWUserMessage {
-  name: string;
-  img: string | null;
-  userID: string;
-  messages: Message[];
-}
-
 interface MessageLogProps {
   channelName: string;
   channelId: string;
@@ -45,8 +38,9 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   const defaultAvatar =
     "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 
+  // Use the hook with your EC2 instance's public IP address or domain name
   const { messages: webSocketMessages, sendMessage } = useWebSocket(
-    "ws://localhost:8080"
+    "ws://52.14.109.249:8080"
   );
 
   useEffect(() => {

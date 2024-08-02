@@ -42,5 +42,3 @@ const useWebSocket = (url: string) => {
 
 export default useWebSocket;
 
-// Use the hook with your EC2 instance's public IP address or domain name
-const { messages, sendMessage } = useWebSocket("ws://52.14.109.249:8080");
