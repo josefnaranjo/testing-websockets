@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(channel, { status: 201 });
-  } catch (error) {
-    console.error('Error creating channel:', error);
+  } catch (error: any) {
+    console.error('Error creating channel:', error.message || error);
     return NextResponse.json({ error: 'Error creating channel' }, { status: 500 });
   }
 }
