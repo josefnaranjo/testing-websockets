@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import ImageUpload from "../components/page";
+import ImageUpload from "../components/ImageUpload"; // Correct relative path
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { TfiHome } from "react-icons/tfi";
 import SectionHeading from "./_components/SectionHeading";
