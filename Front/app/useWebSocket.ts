@@ -41,4 +41,3 @@ const useWebSocket = (url: string) => {
 };
 
 export default useWebSocket;
-

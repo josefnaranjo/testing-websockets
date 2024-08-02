@@ -1,12 +1,25 @@
+import { createServer } from "https";
 import { WebSocketServer } from "ws";
-import { PrismaClient } from "@prisma/client";
+import express from "express";
 import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
+import { PrismaClient } from "@prisma/client";
 
 dotenv.config();
 
 const prisma = new PrismaClient();
 
-const wss = new WebSocketServer({ port: 8080 });
+// Paths to your SSL certificate and private key
+const options = {
+  key: fs.readFileSync(path.resolve("path/to/your/privkey.pem")), // Update with your path
+  cert: fs.readFileSync(path.resolve("path/to/your/fullchain.pem")), // Update with your path
+};
+
+const app = express();
+const server = createServer(options, app);
+
+const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws) => {
   console.log("Client connected");
@@ -19,11 +32,11 @@ wss.on("connection", (ws) => {
       const savedMessage = await prisma.message.create({
         data: {
           content,
-          channelId: String(channelId), // Convert channelId to string
+          channelId: String(channelId),
           userId,
         },
         include: {
-          user: true, // Include user data
+          user: true,
         },
       });
 
@@ -50,4 +63,6 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log("WebSocket server is running on ws://localhost:8080");
+server.listen(443, () => {
+  console.log("WebSocket server is running on wss://<your-domain>:443");
+});
