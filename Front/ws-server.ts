@@ -1,25 +1,13 @@
-import { createServer } from "https";
 import { WebSocketServer } from "ws";
-import express from "express";
-import dotenv from "dotenv";
-import fs from "fs";
-import path from "path";
 import { PrismaClient } from "@prisma/client";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const prisma = new PrismaClient();
 
-// Paths to your SSL certificate and private key
-const options = {
-  key: fs.readFileSync(path.resolve("path/to/your/privkey.pem")), // Update with your path
-  cert: fs.readFileSync(path.resolve("path/to/your/fullchain.pem")), // Update with your path
-};
-
-const app = express();
-const server = createServer(options, app);
-
-const wss = new WebSocketServer({ server });
+// Update the port if necessary; 8080 is commonly used for WebSocket servers
+const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", (ws) => {
   console.log("Client connected");
@@ -63,6 +51,4 @@ wss.on("connection", (ws) => {
   });
 });
 
-server.listen(443, () => {
-  console.log("WebSocket server is running on wss://<your-domain>:443");
-});
+console.log("WebSocket server is running on ws://0.0.0.0:8080");
