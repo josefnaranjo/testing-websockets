@@ -12,7 +12,11 @@ interface ImageUploadProps {
   onUpload: (imageUrl: string) => void; // Add onUpload prop
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ userId, onClose, onUpload }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  userId,
+  onClose,
+  onUpload,
+}) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null); // State to handle the message

@@ -98,7 +98,11 @@ const AccountSettings: React.FC = () => {
     JSON.stringify(settingsData) !== JSON.stringify(originalData);
 
   if (isLoading) {
-    return <div className="font-bold text-4xl flex justify-center mt-20">Loading...</div>;
+    return (
+      <div className="font-bold text-4xl flex justify-center mt-20">
+        Loading...
+      </div>
+    );
   }
 
   return (
