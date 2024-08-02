@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import ImageUpload from "../components/upload/page";
+import ImageUpload from "../components/page";
 
 const UploadPage: React.FC = () => {
   const userId = "your-user-id"; // Replace with actual user ID logic
