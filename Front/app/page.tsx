@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useState } from "react";
 import MessageLog from "./MessageLog";
@@ -23,24 +23,31 @@ export default function Home() {
         </div>
         <div className="direct-messages-container">
           {selectedServerId ? (
-            <ChannelList serverId={selectedServerId} 
+            <ChannelList
+              serverId={selectedServerId}
               onChannelSelect={(channelId, channelName) => {
-              setSelectedChannelId(channelId);
-              setSelectedChannelName(channelName);
-            }}/>
+                setSelectedChannelId(channelId);
+                setSelectedChannelName(channelName);
+              }}
+            />
           ) : (
-            <UserList 
+            <UserList
               userId={selectedUserId}
               onSelectUser={(userId) => {
                 setSelectedUserId(userId);
-                console.log(userId)
+                console.log(userId);
                 setSelectedChannelId("");
                 setSelectedChannelName("");
-              }}/>
+              }}
+            />
           )}
         </div>
         <div className="message-log-container">
-          <MessageLog channelName={selectedChannelName} channelId={selectedChannelId} />
+          <MessageLog
+            channelName={selectedChannelName}
+            channelId={selectedChannelId}
+            userId={selectedUserId} // Pass the userId prop here
+          />
         </div>
       </div>
     </div>
