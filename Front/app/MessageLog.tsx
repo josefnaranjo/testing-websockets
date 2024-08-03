@@ -32,27 +32,23 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
     null
   );
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null); // Reference for the end of the messages
 
   const defaultAvatar =
     "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 
-  // Use the hook with your EC2 instance's public DNS and WebSocket port
+  // Use the hook with your EC2 instance's public IP address or domain name
   const { messages: webSocketMessages, sendMessage } = useWebSocket(
     "ws://ec2-52-14-109-249.us-east-2.compute.amazonaws.com:8080"
   );
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      try {
-        const user = await currentUser();
-        if (user) {
-          setCurrentUserId(user.id);
-        } else {
-          console.error("User is not authenticated");
-        }
-      } catch (error) {
-        console.error("Error fetching current user:", error);
+      const user = await currentUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      } else {
+        console.error("User is not authenticated");
       }
     };
 
@@ -111,18 +107,20 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
   const handleMessageSend = async (message: string): Promise<void> => {
     try {
+      const userId = currentUserId;
+
       if (selectedChannelId) {
         const newMessage = {
           content: message,
           channelId: selectedChannelId,
-          userId: currentUserId,
+          userId,
         };
         sendMessage(newMessage);
       } else if (userId) {
         const newMessage = {
           content: message,
           channelId: null,
-          userId: currentUserId,
+          userId,
         };
         sendMessage(newMessage);
       }
@@ -156,9 +154,9 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
     return {
       id: message.id,
-      createdAt: message.createdAt,
+      createdAt: message.createdAt, // Keep the original timestamp for sorting
       text: message.content,
-      displayTime: localTime,
+      displayTime: localTime, // Human-readable format
       userId: message.userId,
       userName: message.user.name,
       userImage: message.user.image || defaultAvatar,
@@ -181,10 +179,11 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
               userID={message.userId}
               messages={[message]}
               onDeleteMessage={deleteMessage}
-              currentUserId={currentUserId}
+              currentUserId={currentUserId} // Pass the currentUserId to ExistingUserMessages
             />
           ))}
-          <div ref={messagesEndRef} /> {/* This div will be scrolled into view */}
+          <div ref={messagesEndRef} />{" "}
+          {/* This div will be scrolled into view */}
         </div>
         <MessageInput onSendMessage={handleMessageSend} />
       </div>
