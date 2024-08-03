@@ -39,7 +39,7 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
   // Use the hook with your EC2 instance's public IP address or domain name
   const { messages: webSocketMessages, sendMessage } = useWebSocket(
-    "ws://ec2-52-14-109-249.us-east-2.compute.amazonaws.com:8080"
+    "wss://ec2-52-14-109-249.us-east-2.compute.amazonaws.com:8080"
   );
 
   useEffect(() => {
