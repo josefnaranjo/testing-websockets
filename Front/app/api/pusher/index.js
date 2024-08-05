@@ -9,11 +9,11 @@ const pusher = new Pusher({
 });
 
 export default async function handler(req, res) {
-  console.log("Request Method:", req.method); // Log request method
-  console.log("Request Body:", req.body); // Log request body
+  console.log("Request method:", req.method);
 
   if (req.method === "POST") {
     const { channelName, eventName, message } = req.body;
+    console.log("Received POST request with:", channelName, eventName, message);
 
     try {
       await pusher.trigger(channelName, eventName, message);
