@@ -5,7 +5,7 @@ const pusher = new Pusher({
   key: process.env.PUSHER_KEY,
   secret: process.env.PUSHER_SECRET,
   cluster: process.env.PUSHER_CLUSTER,
-  useTLS: true, // Correct usage for server-side Pusher instance
+  useTLS: true,
 });
 
 export default async function handler(req, res) {
@@ -21,6 +21,6 @@ export default async function handler(req, res) {
     }
   } else {
     res.setHeader("Allow", ["POST"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+    res.status(405).json({ error: `Method ${req.method} Not Allowed` }); // Include the error message in the response
   }
 }
