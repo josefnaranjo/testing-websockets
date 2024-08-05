@@ -106,23 +106,25 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
     }
   }, [userMessages]);
 
-  const handleMessageSend = async (message: string): Promise<void> => {
+  const handleMessageSend = async (content: string): Promise<void> => {
     try {
       const userId = currentUserId;
 
-      if (selectedChannelId) {
+      if (selectedChannelId && userId) {
         const newMessage = {
-          content: message,
-          channelId: selectedChannelId,
+          id: "", // This will be filled in by the server
+          createdAt: new Date().toISOString(), // Temporary placeholder
+          text: content,
+          displayTime: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
           userId,
+          userName: "", // This will be filled in by the server
+          userImage: defaultAvatar, // Default placeholder
         };
-        sendMessage(newMessage);
-      } else if (userId) {
-        const newMessage = {
-          content: message,
-          channelId: null,
-          userId,
-        };
+
         sendMessage(newMessage);
       }
     } catch (error) {
@@ -156,7 +158,7 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
     return {
       id: message.id,
       createdAt: message.createdAt,
-      text: message.content,
+      text: message.content, // Ensure 'text' field is used here
       displayTime: localTime,
       userId: message.userId,
       userName: message.user.name,
