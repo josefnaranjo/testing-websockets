@@ -6,7 +6,7 @@ import MessageNav from "./components/message-column/MessageNav";
 import ExistingUserMessages from "./components/message-column/Messages";
 import axios from "axios";
 import { currentUser } from "@/lib/current-user";
-import usePusher from "./useWebSocket";
+import usePusher from "./usePusher";
 
 interface Message {
   id: string;
