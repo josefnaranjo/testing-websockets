@@ -19,13 +19,16 @@ export default function usePusher(channelName: string, eventName: string) {
       return;
     }
 
+    console.log("Initializing Pusher with key:", pusherKey);
     const pusher = new Pusher(pusherKey, {
       cluster: pusherCluster,
     });
 
     const channel = pusher.subscribe(channelName);
+    console.log("Subscribed to channel:", channelName);
 
     channel.bind(eventName, (data: NewMessage) => {
+      console.log("Received new message:", data);
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -36,6 +39,7 @@ export default function usePusher(channelName: string, eventName: string) {
   }, [channelName, eventName]);
 
   const sendMessage = (message: NewMessage) => {
+    console.log("Sending message:", message);
     fetch("/api/pusher", {
       method: "POST",
       headers: {
