@@ -18,6 +18,12 @@ interface Message {
   userImage: string | null;
 }
 
+interface NewMessage {
+  content: string;
+  channelId: string;
+  userId: string;
+}
+
 interface MessageLogProps {
   channelName: string;
   channelId: string;
@@ -27,20 +33,16 @@ interface MessageLogProps {
 const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   const [userMessages, setUserMessages] = useState<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>("");
-  const [selectedChannelName, setSelectedChannelName] =
-    useState<string>(channelName);
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
-    null
-  );
+  const [selectedChannelName, setSelectedChannelName] = useState<string>(channelName);
+  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const defaultAvatar =
-    "https://res.cloudinary.com/demo/image/upload/sample.jpg";
+  const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 
   // Use Pusher for real-time updates
   const { messages: pusherMessages, sendMessage } = usePusher(
-    "my-channel",
-    "my-event"
+    channelName,
+    "new-message"
   );
 
   useEffect(() => {
@@ -92,8 +94,7 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
         );
         const allMessages = [...prevMessages, ...newMessages];
         allMessages.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
         return allMessages;
       });
@@ -111,18 +112,10 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
       const userId = currentUserId;
 
       if (selectedChannelId && userId) {
-        const newMessage = {
-          id: "", // This will be filled in by the server
-          createdAt: new Date().toISOString(), // Temporary placeholder
-          text: content,
-          displayTime: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
+        const newMessage: NewMessage = {
+          content,
+          channelId: selectedChannelId,
           userId,
-          userName: "", // This will be filled in by the server
-          userImage: defaultAvatar, // Default placeholder
         };
 
         sendMessage(newMessage);
@@ -158,7 +151,7 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
     return {
       id: message.id,
       createdAt: message.createdAt,
-      text: message.content, // Ensure 'text' field is used here
+      text: message.content,
       displayTime: localTime,
       userId: message.userId,
       userName: message.user.name,

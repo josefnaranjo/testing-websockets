@@ -1,19 +1,14 @@
 import Pusher from "pusher-js";
 import { useState, useEffect } from "react";
 
-// Define the Message interface to specify the structure of messages
-interface Message {
-  id: string;
-  createdAt: string;
-  text: string;
-  displayTime: string;
+interface NewMessage {
+  content: string;
+  channelId: string;
   userId: string;
-  userName: string;
-  userImage: string | null;
 }
 
 export default function usePusher(channelName: string, eventName: string) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<NewMessage[]>([]);
 
   useEffect(() => {
     const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY as string;
@@ -24,15 +19,13 @@ export default function usePusher(channelName: string, eventName: string) {
       return;
     }
 
-    // Initialize Pusher instance
     const pusher = new Pusher(pusherKey, {
       cluster: pusherCluster,
-      // Automatically use TLS if the app is served over HTTPS
     });
 
     const channel = pusher.subscribe(channelName);
 
-    channel.bind(eventName, (data: Message) => {
+    channel.bind(eventName, (data: NewMessage) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -42,8 +35,7 @@ export default function usePusher(channelName: string, eventName: string) {
     };
   }, [channelName, eventName]);
 
-  // Define the sendMessage function with explicit type for the message parameter
-  const sendMessage = (message: Message) => {
+  const sendMessage = (message: NewMessage) => {
     fetch("/api/pusher", {
       method: "POST",
       headers: {
