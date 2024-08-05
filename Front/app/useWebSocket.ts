@@ -1,41 +1,54 @@
-import { useEffect, useState } from "react";
-import Pusher from "pusher-js";
+import Pusher from 'pusher-js';
+import { useState, useEffect } from 'react';
 
-const usePusher = (channelId: string, eventName: string) => {
-  const [messages, setMessages] = useState<any[]>([]);
+interface Message {
+  id: string;
+  createdAt: string;
+  text: string;
+  displayTime: string;
+  userId: string;
+  userName: string;
+  userImage: string | null;
+}
+
+export default function usePusher(channelName: string, eventName: string) {
+  const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER!,
-      authEndpoint: "/api/pusher/auth",
+    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY as string;
+    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string;
+
+    if (!pusherKey || !pusherCluster) {
+      console.error('Pusher configuration is missing');
+      return;
+    }
+
+    // Initialize Pusher without explicit useTLS
+    const pusher = new Pusher(pusherKey, {
+      cluster: pusherCluster,
     });
 
-    const channel = pusher.subscribe(`presence-channel-${channelId}`);
+    const channel = pusher.subscribe(channelName);
 
-    channel.bind(eventName, (data: any) => {
+    channel.bind(eventName, (data: Message) => {
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
     return () => {
-      pusher.unsubscribe(`presence-channel-${channelId}`);
+      channel.unbind_all();
+      channel.unsubscribe();
     };
-  }, [channelId, eventName]);
+  }, [channelName, eventName]);
 
-  const sendMessage = async (message: any) => {
-    try {
-      await fetch("/api/pusher", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(message),
-      });
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
+  const sendMessage = (message: any) => {
+    fetch('/api/pusher', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ channelName, eventName, message }),
+    });
   };
 
   return { messages, sendMessage };
-};
-
-export default usePusher;
+}

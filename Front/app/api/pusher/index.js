@@ -1,33 +1,21 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const Pusher = require("pusher");
-
-const app = express();
-
-app.use(bodyParser.json());
+import Pusher from 'pusher';
 
 const pusher = new Pusher({
-  appId: "YOUR_APP_ID",
-  key: "YOUR_PUSHER_APP_KEY",
-  secret: "YOUR_PUSHER_APP_SECRET",
-  cluster: "YOUR_PUSHER_CLUSTER",
+  appId: process.env.PUSHER_APP_ID,
+  key: process.env.PUSHER_KEY,
+  secret: process.env.PUSHER_SECRET,
+  cluster: process.env.PUSHER_CLUSTER, // Ensure this is set
   useTLS: true,
 });
 
-app.post("/message", (req, res) => {
-  const { channelName, eventName, message } = req.body;
+export default async (req, res) => {
+  if (req.method === 'POST') {
+    const { channelName, eventName, message } = req.body;
 
-  pusher
-    .trigger(channelName, eventName, message)
-    .then(() => {
-      res.status(200).send("Message sent");
-    })
-    .catch((error) => {
-      console.error("Error triggering Pusher:", error);
-      res.status(500).send("Error sending message");
-    });
-});
+    pusher.trigger(channelName, eventName, message);
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
-});
+    res.status(200).json({ success: true });
+  } else {
+    res.status(405).end(); // Method Not Allowed
+  }
+};
