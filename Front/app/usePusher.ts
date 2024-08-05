@@ -1,5 +1,5 @@
-import Pusher from "pusher-js";
 import { useState, useEffect } from "react";
+import Pusher from "pusher-js";
 
 interface NewMessage {
   content: string;
@@ -11,8 +11,8 @@ export default function usePusher(channelName: string, eventName: string) {
   const [messages, setMessages] = useState<NewMessage[]>([]);
 
   useEffect(() => {
-    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY as string;
-    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string;
+    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY!;
+    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER!;
 
     if (!pusherKey || !pusherCluster) {
       console.error("Pusher configuration is missing");
@@ -21,6 +21,7 @@ export default function usePusher(channelName: string, eventName: string) {
 
     const pusher = new Pusher(pusherKey, {
       cluster: pusherCluster,
+      forceTLS: true, // Use forceTLS instead of useTLS
     });
 
     const channel = pusher.subscribe(channelName);
