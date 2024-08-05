@@ -6,7 +6,7 @@ import MessageNav from "./components/message-column/MessageNav";
 import ExistingUserMessages from "./components/message-column/Messages";
 import axios from "axios";
 import { currentUser } from "@/lib/current-user";
-import useWebSocket from "@/app/useWebSocket";
+import usePusher from "./useWebSocket";
 
 interface Message {
   id: string;
@@ -32,14 +32,15 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
     null
   );
-  const messagesEndRef = useRef<HTMLDivElement | null>(null); // Reference for the end of the messages
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const defaultAvatar =
     "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 
-  // Use the hook with your EC2 instance's public IP address or domain name
-  const { messages: webSocketMessages, sendMessage } = useWebSocket(
-    "wss://ec2-52-14-109-249.us-east-2.compute.amazonaws.com:8080"
+  // Use Pusher for real-time updates
+  const { messages: pusherMessages, sendMessage } = usePusher(
+    "my-channel",
+    "my-event"
   );
 
   useEffect(() => {
@@ -84,9 +85,9 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   }, [channelId, userId, channelName]);
 
   useEffect(() => {
-    if (webSocketMessages.length) {
+    if (pusherMessages.length) {
       setUserMessages((prevMessages) => {
-        const newMessages = webSocketMessages.map((msg) =>
+        const newMessages = pusherMessages.map((msg) =>
           convertMessageBody(msg)
         );
         const allMessages = [...prevMessages, ...newMessages];
@@ -97,7 +98,7 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
         return allMessages;
       });
     }
-  }, [webSocketMessages]);
+  }, [pusherMessages]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -154,9 +155,9 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
     return {
       id: message.id,
-      createdAt: message.createdAt, // Keep the original timestamp for sorting
+      createdAt: message.createdAt,
       text: message.content,
-      displayTime: localTime, // Human-readable format
+      displayTime: localTime,
       userId: message.userId,
       userName: message.user.name,
       userImage: message.user.image || defaultAvatar,
@@ -179,11 +180,10 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
               userID={message.userId}
               messages={[message]}
               onDeleteMessage={deleteMessage}
-              currentUserId={currentUserId} // Pass the currentUserId to ExistingUserMessages
+              currentUserId={currentUserId}
             />
           ))}
-          <div ref={messagesEndRef} />{" "}
-          {/* This div will be scrolled into view */}
+          <div ref={messagesEndRef} />
         </div>
         <MessageInput onSendMessage={handleMessageSend} />
       </div>

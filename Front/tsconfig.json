@@ -33,6 +33,6 @@
     "lib/icons.js",
     "app/api/servers/[serverId]",
     "lib/db.ts"
-  ],
+, "ws-server"  ],
   "exclude": ["node_modules"]
 }
