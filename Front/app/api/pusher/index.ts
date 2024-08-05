@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import Pusher from 'pusher';
+import { NextApiRequest, NextApiResponse } from "next";
+import Pusher from "pusher";
 
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID!,
@@ -9,19 +9,22 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method === "POST") {
     const { channelName, eventName, message } = req.body;
 
     try {
       await pusher.trigger(channelName, eventName, { message });
       res.status(200).json({ success: true });
     } catch (error) {
-      console.error('Error triggering Pusher:', error);
-      res.status(500).json({ error: 'Error triggering Pusher' });
+      console.error("Error triggering Pusher:", error);
+      res.status(500).json({ error: "Error triggering Pusher" });
     }
   } else {
-    res.setHeader('Allow', ['POST']);
+    res.setHeader("Allow", ["POST"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

@@ -21,7 +21,7 @@ export default function usePusher(channelName: string, eventName: string) {
 
     const pusher = new Pusher(pusherKey, {
       cluster: pusherCluster,
-      forceTLS: true, // Use forceTLS instead of useTLS
+      forceTLS: true,
     });
 
     const channel = pusher.subscribe(channelName);
