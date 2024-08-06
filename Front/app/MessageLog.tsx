@@ -95,9 +95,11 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   useEffect(() => {
     if (pusherMessages.length) {
       setUserMessages((prevMessages) => {
-        const newMessages = pusherMessages.map((msg) =>
-          convertMessageBody(msg)
-        );
+        const messageIds = new Set(prevMessages.map((msg) => msg.id));
+        const newMessages = pusherMessages
+          .map((msg) => convertMessageBody(msg))
+          .filter((msg) => !messageIds.has(msg.id));
+
         const allMessages = [...prevMessages, ...newMessages];
         allMessages.sort(
           (a, b) =>
