@@ -33,11 +33,17 @@ interface MessageLogProps {
 const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
   const [userMessages, setUserMessages] = useState<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>("");
-  const [selectedChannelName, setSelectedChannelName] = useState<string>(channelName);
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const [currentUserName, setCurrentUserName] = useState<string>("Anonymous");
+  const [currentUserImage, setCurrentUserImage] = useState<string | null>(null);
+  const [selectedChannelName, setSelectedChannelName] =
+    useState<string>(channelName);
+  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
+    null
+  );
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const defaultAvatar = "https://res.cloudinary.com/demo/image/upload/sample.jpg";
+  const defaultAvatar =
+    "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 
   // Use Pusher for real-time updates
   const { messages: pusherMessages, sendMessage } = usePusher(
@@ -50,6 +56,8 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
       const user = await currentUser();
       if (user) {
         setCurrentUserId(user.id);
+        setCurrentUserName(user.name || "Anonymous");
+        setCurrentUserImage(user.image || defaultAvatar);
       } else {
         console.error("User is not authenticated");
       }
@@ -67,15 +75,13 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
           setSelectedChannelId(channelId);
           setSelectedChannelName(channelName);
 
-          const response = await axios.get(`/api/channels/${channelId}`);
-          const channel = response.data;
-          const messages = await Promise.all(
-            channel.messages.map(async (msg: any) => {
-              const userResponse = await axios.get(`/api/user/${msg.userId}`);
-              const user = userResponse.data;
-              return convertMessageBody({ ...msg, user });
-            })
+          const response = await axios.get(
+            `/api/directMessages?id=${channelId}`
           );
+          const channelMessages = response.data;
+          const messages = channelMessages.map((msg: any) => {
+            return convertMessageBody(msg);
+          });
           setUserMessages(messages);
         }
       } catch (error) {
@@ -94,7 +100,8 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
         );
         const allMessages = [...prevMessages, ...newMessages];
         allMessages.sort(
-          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
         return allMessages;
       });
@@ -109,16 +116,21 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
   const handleMessageSend = async (content: string): Promise<void> => {
     try {
-      const userId = currentUserId;
-
-      if (selectedChannelId && userId) {
+      if (selectedChannelId && currentUserId) {
         const newMessage: NewMessage = {
           content,
           channelId: selectedChannelId,
-          userId,
+          userId: currentUserId,
         };
 
-        sendMessage(newMessage);
+        // Attach user name and image to message
+        const messageWithUserData = {
+          ...newMessage,
+          userName: currentUserName,
+          userImage: currentUserImage,
+        };
+
+        sendMessage(messageWithUserData);
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -142,11 +154,13 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
 
   const convertMessageBody = (message: any): Message => {
     const date = new Date(message.createdAt);
-    const localTime = date.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+    const localTime = !isNaN(date.getTime())
+      ? date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "Invalid Date";
 
     return {
       id: message.id,
@@ -154,8 +168,8 @@ const MessageLog = ({ channelName, channelId, userId }: MessageLogProps) => {
       text: message.content,
       displayTime: localTime,
       userId: message.userId,
-      userName: message.user.name,
-      userImage: message.user.image || defaultAvatar,
+      userName: message.user?.name || "Anonymous",
+      userImage: message.user?.image || defaultAvatar,
     };
   };
 
